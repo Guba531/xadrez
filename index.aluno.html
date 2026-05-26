@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xadrez</title>
+
+  <!-- TODO: importar as fontes do Google Fonts -->
+  <!-- Dica: Playfair Display (títulos) + DM Sans (corpo) -->
+  <!-- https://fonts.google.com -->
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════
+       MODAL DE CONFIGURAÇÃO DE PARTIDA
+
+       O que é um modal?
+       É uma janela que aparece sobre o conteúdo principal,
+       bloqueando a interação até o usuário fazer uma escolha.
+
+       TODO: complete os atributos de acessibilidade
+             role="___" aria-modal="___" aria-labelledby="___"
+  ════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+
+      <div class="modal-header">
+        <!-- TODO: adicione o ícone de peça de xadrez aqui -->
+        <h1 id="modalTitle">Xadrez</h1>
+        <p>Configure sua partida</p>
+      </div>
+
+      <!-- Modo de jogo -->
+      <div class="modal-section">
+        <label class="section-label">Modo de jogo</label>
+
+        <!-- TODO: o que é role="group"? para que serve aria-label aqui? -->
+        <div class="option-group" id="modeGroup">
+
+          <!-- TODO: complete o botão "Dois jogadores"
+               data-value deve ser "human"
+               classe "active" indica qual está selecionado
+               chama selectOption() ao clicar -->
+          <button class="option-btn active" data-value="human" onclick="selectOption('modeGroup', this)">
+            <span class="option-icon">👥</span>
+            <span class="option-title">Dois jogadores</span>
+            <span class="option-sub">Jogar na mesma tela</span>
+          </button>
+
+          <!-- TODO: crie o botão "Contra IA"
+               data-value="ai"
+               ícone: 🤖
+               título: "Contra IA"
+               subtítulo: "Desafie o computador" -->
+
+        </div>
+      </div>
+
+      <!-- Dificuldade da IA -->
+      <!-- TODO: por que esse section começa com display:none?
+           Quando ele deve aparecer? Qual evento faz isso? -->
+      <div class="modal-section" id="difficultySection" style="display:none">
+        <label class="section-label">Dificuldade</label>
+        <div class="option-group" id="difficultyGroup">
+
+          <!-- TODO: crie os dois botões de dificuldade
+               Fácil: data-value="easy", ícone 🌱
+               Difícil: data-value="hard", ícone 🧠 -->
+
+        </div>
+      </div>
+
+      <!-- Escolha da cor -->
+      <div class="modal-section" id="colorSection" style="display:none">
+        <label class="section-label">Suas peças</label>
+        <div class="option-group" id="colorGroup">
+
+          <!-- TODO: crie os dois botões de cor
+               Brancas: data-value="white", símbolo ♔ com classe piece-white
+               Pretas:  data-value="black", símbolo ♚ com classe piece-black -->
+
+        </div>
+      </div>
+
+      <!-- Animações -->
+      <div class="modal-section">
+        <label class="section-label">Opções</label>
+
+        <!-- TODO: o que é um toggle (checkbox estilizado)?
+             Pesquise "CSS toggle switch" para entender o padrão -->
+        <div class="toggle-row">
+          <span class="toggle-label">Animações de captura</span>
+          <label class="toggle">
+            <!-- TODO: adicione o input type="checkbox" com id="toggleAnimations" checked -->
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- TODO: crie o botão de iniciar partida
+           classe: btn-start
+           chama: startGame()
+           texto: "Iniciar partida" com uma seta → -->
+
+    </div>
+  </div><!-- /modal-overlay -->
+
+
+  <!-- ═══════════════════════════════════════════════════
+       APP — layout principal
+       Fica oculto até o jogo começar (startGame())
+  ════════════════════════════════════════════════════ -->
+  <div class="app" id="app">
+
+    <!-- ─────────────────────────────────────────────────
+         NAV LATERAL
+
+         Por que <nav> e não <div>?
+         Tags semânticas descrevem o significado do conteúdo:
+         <nav>     → área de navegação/controle
+         <main>    → conteúdo principal
+         <section> → seção com tema próprio
+         <aside>   → conteúdo relacionado mas secundário
+
+         Isso ajuda leitores de tela, SEO e outros desenvolvedores
+         a entenderem a estrutura sem ler todo o código.
+
+         TODO: adicione aria-label="Painel do jogo"
+    ──────────────────────────────────────────────────── -->
+    <nav class="sidebar" id="sidebar">
+
+      <div class="sidebar-logo">
+        <span class="logo-icon">♟</span>
+        <span class="logo-text">Xadrez</span>
+        <!-- TODO: adicione um botão para recolher a sidebar
+             Dica: classe btn-icon sidebar-toggle, ícone ‹ -->
+      </div>
+
+      <!-- ── SEÇÃO: Partida atual ── -->
+      <!-- TODO: o que faz toggleSection()? implemente em ui/nav.js -->
+      <section class="nav-section" id="sectionPartida">
+        <button class="nav-section-header" onclick="toggleSection('sectionPartida')">
+          <span class="nav-section-icon">⚔️</span>
+          <span>Partida</span>
+          <span class="nav-chevron">▾</span>
+        </button>
+        <div class="nav-section-body">
+
+          <div class="info-card" id="turnCard">
+            <div class="info-label">Vez de</div>
+            <div class="info-value">
+              <!-- TODO: adicione o elemento da peça (id="turnPiece")
+                   e o nome do jogador (id="turnName") -->
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-label">Modo</div>
+            <!-- TODO: adicione id="modeDisplay" aqui -->
+            <div class="info-value">—</div>
+          </div>
+
+          <!-- TODO: crie um terceiro info-card para mostrar
+               a situação do jogo (xeque, xeque-mate etc.)
+               id="statusCard", começa com display:none
+               dentro: label "Situação" e div id="gameStatus" -->
+
+        </div>
+      </section>
+
+      <!-- ── SEÇÃO: Placar ── -->
+      <section class="nav-section" id="sectionPlacar">
+        <button class="nav-section-header" onclick="toggleSection('sectionPlacar')">
+          <span class="nav-section-icon">🏆</span>
+          <span>Placar</span>
+          <span class="nav-chevron">▾</span>
+        </button>
+        <div class="nav-section-body">
+
+          <!-- TODO: monte o score-board com dois jogadores
+               estrutura: .score-board > .score-player × 2 + .score-divider
+               ids necessários: numWhite, numBlack, scoreWhite, scoreBlack
+               peças: ♔ para brancas, ♚ para pretas -->
+
+        </div>
+      </section>
+
+      <!-- ── SEÇÃO: Peças capturadas ── -->
+      <section class="nav-section" id="sectionCapturadas">
+        <button class="nav-section-header" onclick="toggleSection('sectionCapturadas')">
+          <span class="nav-section-icon">💀</span>
+          <span>Capturadas</span>
+          <span class="nav-chevron">▾</span>
+        </button>
+        <div class="nav-section-body">
+          <!-- TODO: adicione dois grupos de peças capturadas
+               .captured-label + .captured para cada cor
+               ids: capturedByWhite, capturedByBlack -->
+        </div>
+      </section>
+
+      <!-- ── SEÇÃO: Histórico ── -->
+      <section class="nav-section" id="sectionHistorico">
+        <button class="nav-section-header" onclick="toggleSection('sectionHistorico')">
+          <span class="nav-section-icon">📜</span>
+          <span>Histórico</span>
+          <span class="nav-chevron">▾</span>
+        </button>
+        <div class="nav-section-body">
+          <!-- TODO: adicione a div de histórico
+               id="history", role="log", aria-live="polite"
+               Dentro: uma div.history-empty com texto inicial -->
+        </div>
+      </section>
+
+      <!-- ── SEÇÃO: Configurações ── -->
+      <!-- TODO: por que esta seção começa fechada (aria-expanded="false")?
+           Qual a diferença visual/funcional em relação às outras? -->
+      <section class="nav-section" id="sectionConfig">
+        <button class="nav-section-header" onclick="toggleSection('sectionConfig')">
+          <span class="nav-section-icon">⚙️</span>
+          <span>Configurações</span>
+          <span class="nav-chevron">▾</span>
+        </button>
+        <div class="nav-section-body" style="display:none">
+
+          <!-- TODO: adicione os 3 toggles de configuração:
+               1. Animações (id="configAnimations", checked por padrão)
+               2. Mostrar movimentos válidos (id="configShowMoves", checked)
+               3. Coordenadas no tabuleiro (id="configCoords", checked) -->
+
+        </div>
+      </section>
+
+      <div class="sidebar-footer">
+        <!-- TODO: adicione os botões:
+             1. "＋ Nova partida" → chama openModal()
+             2. "↩ Desfazer jogada" → chama undoMove(), começa disabled
+                id="btnUndo" -->
+      </div>
+
+    </nav><!-- /sidebar -->
+
+
+    <!-- ─────────────────────────────────────────────────
+         ÁREA DO JOGO
+
+         <main> é o conteúdo principal da página.
+         Só deve existir UM <main> por página.
+    ──────────────────────────────────────────────────── -->
+    <main class="game-area" id="gameArea">
+      <div class="board-wrapper" id="boardWrapper">
+
+        <div class="board-container">
+
+          <!-- Coordenadas superiores -->
+          <!-- TODO: crie a .coord-row.coord-top com as letras a até h
+               Lembre-se das células vazias nas pontas! -->
+
+          <div class="board-row-wrap">
+
+            <!-- Números laterais esquerdos -->
+            <!-- TODO: crie a .coord-col com os números 8 até 1 -->
+
+            <!-- CANVAS: onde o tabuleiro será desenhado via JavaScript -->
+            <!-- TODO: adicione os atributos de acessibilidade:
+                 role="application"
+                 aria-label="Tabuleiro de xadrez" -->
+            <canvas id="board" width="480" height="480"></canvas>
+
+            <!-- TODO: adicione a .coord-col direita (números 8 até 1) -->
+
+          </div>
+
+          <!-- TODO: adicione a .coord-row.coord-bottom (letras a até h) -->
+
+        </div><!-- /board-container -->
+
+        <!-- Mensagem de status abaixo do tabuleiro -->
+        <!-- TODO: por que usar role="status" e aria-live="polite" aqui?
+             O que isso faz para leitores de tela? -->
+        <div class="board-status" id="boardStatus">
+          Selecione uma peça para começar
+        </div>
+
+      </div><!-- /board-wrapper -->
+    </main><!-- /game-area -->
+
+  </div><!-- /app -->
+
+
+  <!-- ─────────────────────────────────────────────────
+       SCRIPTS
+
+       type="module" permite usar import/export entre arquivos.
+       Só carregamos o main.js aqui — ele importa todo o resto.
+
+       TODO: por que não precisamos carregar board.js,
+             drawBoard.js etc. aqui separadamente?
+  ──────────────────────────────────────────────────── -->
+  <script type="module" src="main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,848 @@
+/* ═══════════════════════════════════════════════════════
+   style.css — Xadrez
+   Organização:
+   1. Tokens (variáveis CSS)
+   2. Reset
+   3. Modal
+   4. App Layout
+   5. Nav / Sidebar
+   6. Seções colapsáveis
+   7. Componentes (cards, placar, histórico, toggles)
+   8. Área do jogo / Canvas
+   9. Animações @keyframes
+════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────
+   1. TOKENS — variáveis CSS
+   Centraliza todas as cores, tamanhos e fontes.
+   Para mudar o tema do jogo, basta alterar aqui.
+──────────────────────────────────────────────────────── */
+:root {
+  /* Paleta de fundo — tons quentes e neutros */
+  --bg:           #f5f0e8;
+  --bg-deep:      #ede7da;
+  --surface:      #faf7f2;
+  --surface-alt:  #f0ebe0;
+
+  /* Tabuleiro */
+  --board-light:  #f0d9b5;
+  --board-dark:   #b58863;
+  --board-rim:    #7a5533;
+
+  /* Destaque de jogadas */
+  --highlight-selected: rgba(255, 185, 30,  0.72);
+  --highlight-move:     rgba(90,  170,  90,  0.45);
+
+  /* Acento principal */
+  --accent:       #7c5c3a;
+  --accent-soft:  #c4a882;
+  --accent-pale:  #ede0cc;
+  --accent-hover: #6a4d30;
+
+  /* Texto */
+  --text-primary:   #2c1f0f;
+  --text-secondary: #7a6248;
+  --text-muted:     #b09a7e;
+
+  /* Estrutura */
+  --sidebar-w:  264px;
+  --border:     0.5px solid rgba(124, 92, 58, 0.18);
+  --radius:     10px;
+  --radius-lg:  16px;
+  --radius-sm:  6px;
+
+  /* Tipografia */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  /* Sombras */
+  --shadow-soft:  0 4px 24px rgba(44, 31, 15, 0.08);
+  --shadow-board: 0 8px 48px rgba(44, 31, 15, 0.22);
+  --shadow-modal: 0 24px 64px rgba(44, 31, 15, 0.28);
+}
+
+/* ───────────────────────────────────────────────────────
+   2. RESET — base limpa e consistente entre navegadores
+──────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;           /* evita scroll — jogo é 100vh */
+}
+
+body {
+  font-family: var(--font-body);
+  background:  var(--bg);
+  color:       var(--text-primary);
+  font-size:   14px;
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+
+/* ───────────────────────────────────────────────────────
+   3. MODAL
+──────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(44, 31, 15, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Estado oculto — animação de saída */
+.modal-overlay.hidden {
+  animation: fadeOut 0.25s ease forwards;
+  pointer-events: none;
+}
+
+.modal {
+  background:    var(--surface);
+  border-radius: var(--radius-lg);
+  padding:       2rem;
+  width:         min(440px, 92vw);
+  box-shadow:    var(--shadow-modal);
+  border:        var(--border);
+  animation:     slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.hidden .modal {
+  animation: slideDown 0.25s ease forwards;
+}
+
+/* Cabeçalho do modal */
+.modal-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.modal-icon {
+  display: block;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.modal-header h1 {
+  font-family:    var(--font-display);
+  font-size:      2rem;
+  font-weight:    700;
+  color:          var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.modal-header p {
+  color:     var(--text-secondary);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Seção dentro do modal */
+.modal-section {
+  margin-bottom: 1.25rem;
+}
+
+.section-label {
+  display:        block;
+  font-size:      0.7rem;
+  font-weight:    500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color:          var(--text-muted);
+  margin-bottom:  0.5rem;
+}
+
+/* Grupo de opções (2 colunas) */
+.option-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.option-btn {
+  background:    var(--bg-deep);
+  border:        1.5px solid transparent;
+  border-radius: var(--radius);
+  padding:       0.875rem 0.75rem;
+  text-align:    left;
+  display:       flex;
+  flex-direction: column;
+  gap:           2px;
+  transition:    background 0.2s ease, border-color 0.2s ease,
+                 transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.option-btn:hover {
+  background:   var(--accent-pale);
+  border-color: var(--accent-soft);
+  transform:    translateY(-1px);
+}
+
+.option-btn.active {
+  background:   var(--accent-pale);
+  border-color: var(--accent);
+  box-shadow:   0 0 0 2px rgba(124, 92, 58, 0.12);
+}
+
+.option-icon {
+  font-size:     1.4rem;
+  margin-bottom: 4px;
+  display:       block;
+}
+
+/* Cor das peças no modal */
+.piece-white {
+  color:       #c8a96e;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+}
+.piece-black { color: #3d2a14; }
+
+.option-title {
+  display:     block;
+  font-weight: 500;
+  font-size:   0.875rem;
+  color:       var(--text-primary);
+}
+
+.option-sub {
+  display:   block;
+  font-size: 0.75rem;
+  color:     var(--text-muted);
+}
+
+/* Toggle (checkbox estilizado) */
+.toggle-row {
+  display:     flex;
+  align-items: center;
+  justify-content: space-between;
+  padding:     0.5rem 0;
+  border-bottom: var(--border);
+}
+.toggle-row:last-child { border-bottom: none; }
+
+.toggle-label {
+  font-size: 0.875rem;
+  color:     var(--text-secondary);
+}
+
+.toggle {
+  position: relative;
+  display:  inline-block;
+  width:    40px;
+  height:   22px;
+  flex-shrink: 0;
+}
+
+.toggle input {
+  opacity:  0;
+  width:    0;
+  height:   0;
+  position: absolute;
+}
+
+.toggle-slider {
+  position:       absolute;
+  inset:          0;
+  background:     var(--bg-deep);
+  border:         var(--border);
+  border-radius:  22px;
+  cursor:         pointer;
+  transition:     background 0.25s ease;
+}
+
+/* bolinha do toggle */
+.toggle-slider::before {
+  content:       '';
+  position:      absolute;
+  width:         16px;
+  height:        16px;
+  left:          3px;
+  top:           3px;
+  background:    var(--accent-soft);
+  border-radius: 50%;
+  transition:    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                 background 0.25s ease;
+}
+
+/* estado ativo do toggle */
+.toggle input:checked + .toggle-slider {
+  background: var(--accent-pale);
+  border-color: var(--accent-soft);
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform:  translateX(18px);
+  background: var(--accent);
+}
+
+/* Botão principal do modal */
+.btn-start {
+  width:          100%;
+  background:     var(--accent);
+  color:          #faf7f2;
+  border:         none;
+  border-radius:  var(--radius);
+  padding:        0.875rem 1.5rem;
+  font-size:      0.9375rem;
+  font-weight:    500;
+  display:        flex;
+  align-items:    center;
+  justify-content: center;
+  gap:            8px;
+  margin-top:     0.5rem;
+  letter-spacing: 0.01em;
+  transition:     background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-start:hover {
+  background: var(--accent-hover);
+  transform:  translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 92, 58, 0.3);
+}
+
+.btn-start:active { transform: translateY(0); }
+
+.btn-arrow {
+  font-size:  1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-start:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+
+/* ───────────────────────────────────────────────────────
+   4. APP LAYOUT — flex horizontal: sidebar + main
+──────────────────────────────────────────────────────── */
+.app {
+  display:    flex;
+  height:     100vh;
+  opacity:    0;
+  transition: opacity 0.4s ease;
+}
+
+.app.visible { opacity: 1; }
+
+
+/* ───────────────────────────────────────────────────────
+   5. NAV / SIDEBAR
+   Usa <nav> — tag semântica de navegação
+──────────────────────────────────────────────────────── */
+.sidebar {
+  width:        var(--sidebar-w);
+  min-width:    var(--sidebar-w);
+  background:   var(--surface);
+  border-right: var(--border);
+  display:      flex;
+  flex-direction: column;
+  overflow-y:   auto;
+  overflow-x:   hidden;
+  padding:      1.125rem 0.875rem;
+
+  /* Entrada animada — desliza da esquerda */
+  transform:  translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+.sidebar.visible {
+  transform: translateX(0);
+}
+
+/* Scrollbar discreta na sidebar */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb {
+  background:    var(--accent-soft);
+  border-radius: 2px;
+}
+
+/* Logo / título da sidebar */
+.sidebar-logo {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: var(--border);
+}
+
+.logo-icon {
+  font-size: 1.5rem;
+  animation: float 4s ease-in-out infinite;
+}
+
+.logo-text {
+  font-family:    var(--font-display);
+  font-size:      1.25rem;
+  font-weight:    600;
+  color:          var(--text-primary);
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+
+.btn-icon {
+  background:    transparent;
+  border:        var(--border);
+  border-radius: var(--radius-sm);
+  width:         28px;
+  height:        28px;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  color:         var(--text-muted);
+  font-size:     1.1rem;
+  transition:    all 0.2s ease;
+  line-height:   1;
+}
+
+.btn-icon:hover {
+  background:  var(--bg-deep);
+  color:       var(--text-primary);
+  border-color: var(--accent-soft);
+}
+
+/* Rodapé da sidebar */
+.sidebar-footer {
+  margin-top:   auto;
+  padding-top:  1rem;
+  border-top:   var(--border);
+  display:      flex;
+  flex-direction: column;
+  gap:          6px;
+}
+
+.btn-secondary {
+  background:    transparent;
+  border:        var(--border);
+  border-radius: var(--radius);
+  padding:       0.5rem 0.875rem;
+  font-size:     0.8125rem;
+  color:         var(--text-secondary);
+  text-align:    center;
+  transition:    all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background:   var(--bg-deep);
+  color:        var(--text-primary);
+  border-color: var(--accent-soft);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor:  not-allowed;
+}
+
+.btn-secondary:disabled:hover {
+  background:   transparent;
+  border-color: rgba(124, 92, 58, 0.18);
+}
+
+
+/* ───────────────────────────────────────────────────────
+   6. SEÇÕES COLAPSÁVEIS DA NAV
+   Cada <section class="nav-section"> tem:
+   - .nav-section-header  → botão clicável (título)
+   - .nav-section-body    → conteúdo que abre/fecha
+──────────────────────────────────────────────────────── */
+.nav-section {
+  margin-bottom: 2px;
+  border-radius: var(--radius);
+  overflow:      hidden;
+  /* entrada escalonada via JS (animation-delay) */
+  animation:     fadeSlideIn 0.4s ease both;
+}
+
+/* títulos das seções */
+.nav-section-header {
+  width:         100%;
+  background:    transparent;
+  border:        none;
+  border-radius: var(--radius);
+  padding:       0.5rem 0.625rem;
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  font-size:     0.75rem;
+  font-weight:   500;
+  color:         var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition:    background 0.15s ease, color 0.15s ease;
+  text-align:   left;
+}
+
+.nav-section-header:hover {
+  background: var(--bg-deep);
+  color:      var(--text-secondary);
+}
+
+.nav-section-icon {
+  font-size: 0.9rem;
+}
+
+/* seta que gira ao abrir/fechar */
+.nav-chevron {
+  margin-left:  auto;
+  font-size:    0.65rem;
+  transition:   transform 0.25s cubic-bezier(0.34, 1.2, 0.64, 1);
+  display:      inline-block;
+}
+
+.nav-section.collapsed .nav-chevron {
+  transform: rotate(-90deg);
+}
+
+/* corpo da seção */
+.nav-section-body {
+  padding:    0.25rem 0.25rem 0.5rem;
+  /* altura animada via JS — max-height trick */
+  overflow:   hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity    0.25s ease;
+  max-height: 600px;
+  opacity:    1;
+}
+
+.nav-section.collapsed .nav-section-body {
+  max-height: 0;
+  opacity:    0;
+}
+
+
+/* ───────────────────────────────────────────────────────
+   7. COMPONENTES DA SIDEBAR
+──────────────────────────────────────────────────────── */
+
+/* Card de informação */
+.info-card {
+  background:    var(--bg-deep);
+  border-radius: var(--radius-sm);
+  padding:       0.5rem 0.75rem;
+  margin-bottom: 5px;
+  border:        var(--border);
+  transition:    background 0.3s ease;
+}
+
+.info-label {
+  font-size: 0.68rem;
+  color:     var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.info-value {
+  font-weight: 500;
+  font-size:   0.875rem;
+  color:       var(--text-primary);
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+}
+
+/* peça animada do turno */
+.turn-piece {
+  font-size:  1.2rem;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.turn-piece.bounce {
+  animation: pieceBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* status do jogo (xeque etc) */
+.status-value {
+  color: #b85c38;
+  font-weight: 600;
+}
+
+/* Placar */
+.score-board {
+  background:    var(--bg-deep);
+  border-radius: var(--radius-sm);
+  border:        var(--border);
+  padding:       0.625rem;
+  display:       flex;
+  align-items:   center;
+}
+
+.score-player {
+  flex:        1;
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  padding:     0 0.25rem;
+  transition:  transform 0.2s ease;
+}
+
+.score-player.winning { transform: scale(1.05); }
+
+.score-piece { font-size: 1.3rem; }
+
+.score-name {
+  font-size: 0.68rem;
+  color:     var(--text-muted);
+}
+
+.score-num {
+  font-family: var(--font-display);
+  font-size:   1.5rem;
+  font-weight: 700;
+  color:       var(--text-primary);
+  line-height: 1;
+  transition:  transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+               color 0.3s;
+}
+
+.score-num.pop {
+  animation: scorePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.score-divider {
+  color:     var(--text-muted);
+  font-size: 0.75rem;
+  padding:   0 4px;
+}
+
+/* Peças capturadas */
+.captured-label {
+  font-size:  0.65rem;
+  color:      var(--text-muted);
+  margin:     4px 0 2px;
+  padding:    0 2px;
+}
+
+.captured {
+  min-height: 24px;
+  display:    flex;
+  flex-wrap:  wrap;
+  gap:        1px;
+  padding:    3px 2px;
+  font-size:  1rem;
+  line-height: 1;
+}
+
+/* Histórico de jogadas */
+.history {
+  background:    var(--bg-deep);
+  border-radius: var(--radius-sm);
+  border:        var(--border);
+  max-height:    130px;
+  overflow-y:    auto;
+  padding:       0.375rem;
+}
+
+.history::-webkit-scrollbar { width: 4px; }
+.history::-webkit-scrollbar-track { background: transparent; }
+.history::-webkit-scrollbar-thumb {
+  background:    var(--accent-soft);
+  border-radius: 2px;
+}
+
+.history-empty {
+  font-size:   0.75rem;
+  color:       var(--text-muted);
+  text-align:  center;
+  padding:     0.5rem;
+  font-style:  italic;
+}
+
+.history-move {
+  display:     grid;
+  grid-template-columns: 18px 1fr 1fr;
+  gap:         4px;
+  font-size:   0.75rem;
+  padding:     3px 4px;
+  border-radius: 4px;
+  transition:  background 0.15s;
+}
+
+.history-move:hover { background: var(--surface); }
+
+.move-num   { color: var(--text-muted); }
+.move-white { color: var(--text-primary); font-weight: 500; }
+.move-black { color: var(--text-secondary); }
+
+
+/* ───────────────────────────────────────────────────────
+   8. ÁREA DO JOGO / CANVAS
+──────────────────────────────────────────────────────── */
+.game-area {
+  flex:            1;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         1.5rem;
+  background:      var(--bg);
+  overflow:        hidden;
+}
+
+/* wrapper com entrada animada */
+.board-wrapper {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            12px;
+
+  transform:  scale(0.92) translateY(14px);
+  opacity:    0;
+  transition: transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) 0.15s,
+              opacity   0.4s ease                               0.15s;
+}
+
+.board-wrapper.visible {
+  transform: scale(1) translateY(0);
+  opacity:   1;
+}
+
+/* moldura do tabuleiro */
+.board-container {
+  display:       flex;
+  flex-direction: column;
+  background:    var(--board-rim);
+  border-radius: var(--radius-sm);
+  padding:       4px;
+  box-shadow:    var(--shadow-board);
+}
+
+.board-row-wrap {
+  display:     flex;
+  align-items: stretch;
+}
+
+/* coordenadas laterais e superior/inferior */
+.coord-row {
+  display: flex;
+  padding: 0 20px;
+}
+
+.coord-col {
+  display:        flex;
+  flex-direction: column;
+  width:          20px;
+}
+
+.coord-cell {
+  width:           20px;
+  height:          60px;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  font-size:       0.62rem;
+  font-weight:     500;
+  color:           rgba(240, 217, 181, 0.65);
+  letter-spacing:  0.04em;
+}
+
+.coord-row .coord-cell         { width: 60px; height: 20px; }
+.coord-row .coord-cell:first-child,
+.coord-row .coord-cell:last-child { width: 20px; }
+
+/* Canvas */
+#board {
+  display: block;
+  cursor:  pointer;
+  border-radius: 1px;
+}
+
+/* mensagem de status */
+.board-status {
+  font-size:   0.8rem;
+  color:       var(--text-secondary);
+  text-align:  center;
+  min-height:  22px;
+  letter-spacing: 0.01em;
+  transition:  all 0.3s ease;
+}
+
+.board-status.alert {
+  color:       #b85c38;
+  font-weight: 500;
+  animation:   statusPulse 0.4s ease;
+}
+
+.board-status.success {
+  color:       #4a8c3f;
+  font-weight: 500;
+}
+
+
+/* ───────────────────────────────────────────────────────
+   9. ANIMAÇÕES @keyframes
+──────────────────────────────────────────────────────── */
+
+/* Fade simples */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* Modal entra de baixo */
+@keyframes slideUp {
+  from { transform: translateY(24px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(0)    scale(1);    opacity: 1; }
+  to   { transform: translateY(24px) scale(0.97); opacity: 0; }
+}
+
+/* Ícone flutuando */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+/* Itens da sidebar entram escorregando */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Peça do turno quica ao trocar */
+@keyframes pieceBounce {
+  0%   { transform: scale(1)   translateY(0); }
+  40%  { transform: scale(1.3) translateY(-6px); }
+  100% { transform: scale(1)   translateY(0); }
+}
+
+/* Placar estoura ao marcar ponto */
+@keyframes scorePop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.45); color: var(--accent); }
+  100% { transform: scale(1); }
+}
+
+/* Status pulsa ao mostrar alerta */
+@keyframes statusPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.03); }
+}
+
+/* Scrollbar global discreta */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background:    var(--accent-soft);
+  border-radius: 3px;
+}
