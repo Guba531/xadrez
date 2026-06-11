@@ -47,3 +47,46 @@ import {
     setStatus
 } from './ui/nav.js';
 import { posicaoParaNotacao } from './core/utils.js';
+
+// ── ESTADO DO JOGO ────────────────────────────────────────
+// Todas as variáveis que descrevem a situação atual da partida.
+// Ficam aqui no main.js porque pertencem ao jogo como um todo,
+// não a nenhum módulo específico.
+//
+// TODO: futuramente podemos criar um core/game.js para
+//       encapsular esse estado e a lógica de turno/xeque.
+
+const estado = {
+    board: null, // instancia de Board
+    config: null, // configuracoes da partida
+    turnoAtual: 'white', // 'white' | 'black'
+    selecionado: null, // { roe, col } ou null
+    movValidos: [], // array de { row, col }
+    placar: { white: 0, black: 0},
+    captPorBrancas: [], // simbolos das pecas capturadas pelas brancas
+    captPorPretas: [], // simbolos das pecas capturadas pelas pretas
+    numeroTurno: 1, // contador de turnos para o historico
+    animacoesAtivas: true,
+};
+
+// ── CANVAS ────────────────────────────────────────────────
+// Pegamos o canvas e seu contexto 2D uma vez.
+// O contexto (ctx) é o objeto com todos os métodos de desenho.
+
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+
+// ── INICIAR JOGO ──────────────────────────────────────────
+// Chamada pelo botão do modal. Lê as configurações,
+// monta o tabuleiro e prepara a interface.
+//
+// Por que window.startGame?
+// O onclick no HTML chama startGame() — como estamos em
+// um ES Module, precisamos expor a função globalmente.
+
+window.startGame = function(){
+    // Lê as escolhas do modal
+    estado.config = lerConfiguracoes();
+    estado.animacoesAtivas = estado.config.animacoes;
+    fecharModal();
+}
