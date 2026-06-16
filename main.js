@@ -60,7 +60,7 @@ const estado = {
     board: null, // instancia de Board
     config: null, // configuracoes da partida
     turnoAtual: 'white', // 'white' | 'black'
-    selecionado: null, // { roe, col } ou null
+    selecionado: null, // { row, col } ou null
     movValidos: [], // array de { row, col }
     placar: { white: 0, black: 0},
     captPorBrancas: [], // simbolos das pecas capturadas pelas brancas
@@ -89,4 +89,15 @@ window.startGame = function(){
     estado.config = lerConfiguracoes();
     estado.animacoesAtivas = estado.config.animacoes;
     fecharModal();
-}
+
+    estado.board = new Board();
+    estado.turnoAtual = 'White';
+    estado.selecionado = null;
+    estado.movValidos = [];
+    estado.placar = {white: 0, black: 0};
+    estado.captPorBrancas = [];
+    estado.captPorPretas = [];
+    estado.numeroTurno = 1;
+    
+    renderizar(); //adicionar props
+};
