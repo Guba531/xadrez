@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Xadrez</title>
 
-  <!-- TODO: importar as fontes do Google Fonts -->
-  <!-- Dica: Playfair Display (títulos) + DM Sans (corpo) -->
-  <!-- https://fonts.google.com -->
+  <!-- Fontes do Google Fonts importadas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <!-- ═══════════════════════════════════════════════════
        MODAL DE CONFIGURAÇÃO DE PARTIDA
-
-       O que é um modal?
-       É uma janela que aparece sobre o conteúdo principal,
-       bloqueando a interação até o usuário fazer uma escolha.
-
-       TODO: complete os atributos de acessibilidade
-             role="___" aria-modal="___" aria-labelledby="___"
   ════════════════════════════════════════════════════ -->
-  <div class="modal-overlay" id="modal">
+  <!-- Atributos de acessibilidade preenchidos -->
+  <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
-
       <div class="modal-header">
-        <!-- TODO: adicione o ícone de peça de xadrez aqui -->
+        <!-- Ícone de peça de xadrez adicionado -->
+        <span class="modal-icon" aria-hidden="true">♟</span>
         <h1 id="modalTitle">Xadrez</h1>
         <p>Configure sua partida</p>
       </div>
@@ -36,38 +35,44 @@
       <div class="modal-section">
         <label class="section-label">Modo de jogo</label>
 
-        <!-- TODO: o que é role="group"? para que serve aria-label aqui? -->
-        <div class="option-group" id="modeGroup">
+        <!-- Resposta: role="group" indica para tecnologias assistivas que os botões dentro dessa div fazem parte de um mesmo grupo de opções. O aria-label dá um nome descritivo a esse grupo. -->
+        <div class="option-group" id="modeGroup" role="group" aria-label="Modo de jogo">
 
-          <!-- TODO: complete o botão "Dois jogadores"
-               data-value deve ser "human"
-               classe "active" indica qual está selecionado
-               chama selectOption() ao clicar -->
-          <button class="option-btn active" data-value="human" onclick="selectOption('modeGroup', this)">
-            <span class="option-icon">👥</span>
+          <button class="option-btn active" data-value="human" onclick="selectOption('modeGroup', this)"
+            aria-pressed="true">
+            <span class="option-icon" aria-hidden="true">👥</span>
             <span class="option-title">Dois jogadores</span>
             <span class="option-sub">Jogar na mesma tela</span>
           </button>
 
-          <!-- TODO: crie o botão "Contra IA"
-               data-value="ai"
-               ícone: 🤖
-               título: "Contra IA"
-               subtítulo: "Desafie o computador" -->
+          <!-- Botão "Contra IA" criado -->
+          <button class="option-btn" data-value="ai" onclick="selectOption('modeGroup', this)">
+            <span class="option-icon" aria-hidden="true">🤖</span>
+            <span class="option-title">Contra IA</span>
+            <span class="option-sub">Desafie o computador</span>
+          </button>
 
         </div>
       </div>
 
       <!-- Dificuldade da IA -->
-      <!-- TODO: por que esse section começa com display:none?
-           Quando ele deve aparecer? Qual evento faz isso? -->
+      <!-- Resposta: Esta section começa com display:none porque o modo padrão selecionado é "Dois jogadores". Ela só deve aparecer quando o usuário selecionar "Contra IA". O evento onclick dos botões chamando selectOption() é o responsável por mudar isso. -->
       <div class="modal-section" id="difficultySection" style="display:none">
         <label class="section-label">Dificuldade</label>
-        <div class="option-group" id="difficultyGroup">
+        <div class="option-group" id="difficultyGroup" role="group" aria-label="Dificuldade da IA">
 
-          <!-- TODO: crie os dois botões de dificuldade
-               Fácil: data-value="easy", ícone 🌱
-               Difícil: data-value="hard", ícone 🧠 -->
+          <!-- Botões de dificuldade criados -->
+          <button class="option-btn active" data-value="easy" onclick="selectOption('difficultyGroup', this)"
+            aria-pressed="true">
+            <span class="option-icon" aria-hidden="true">🌱</span>
+            <span class="option-title">Fácil</span>
+          </button>
+
+          <button class="option-btn" data-value="hard" onclick="selectOption('difficultyGroup', this)"
+            aria-pressed="false">
+            <span class="option-icon" aria-hidden="true">🧠</span>
+            <span class="option-title">Difícil</span>
+          </button>
 
         </div>
       </div>
@@ -75,11 +80,19 @@
       <!-- Escolha da cor -->
       <div class="modal-section" id="colorSection" style="display:none">
         <label class="section-label">Suas peças</label>
-        <div class="option-group" id="colorGroup">
+        <div class="option-group" id="colorGroup" role="group" aria-label="Escolha de Cor">
 
-          <!-- TODO: crie os dois botões de cor
-               Brancas: data-value="white", símbolo ♔ com classe piece-white
-               Pretas:  data-value="black", símbolo ♚ com classe piece-black -->
+          <!-- Botões de cor criados -->
+          <button class="option-btn active" data-value="white" onclick="selectOption('colorGroup', this)"
+            aria-pressed="true">
+            <span class="option-icon piece-white" aria-hidden="true">♔</span>
+            <span class="option-title">Brancas</span>
+          </button>
+
+          <button class="option-btn" data-value="black" onclick="selectOption('colorGroup', this)" aria-pressed="true">
+            <span class="option-icon piece-black" aria-hidden="true">♚</span>
+            <span class="option-title">Pretas</span>
+          </button>
 
         </div>
       </div>
@@ -88,21 +101,21 @@
       <div class="modal-section">
         <label class="section-label">Opções</label>
 
-        <!-- TODO: o que é um toggle (checkbox estilizado)?
-             Pesquise "CSS toggle switch" para entender o padrão -->
+        <!-- Resposta: Um "toggle" switch CSS é criado usando um input type="checkbox" escondido. Usamos o pseudo-seletor :checked no CSS para estilizar o <span class="toggle-slider"> vizinho para que ele mude de cor e mova a bolinha para a direita simulando um interruptor físico. -->
         <div class="toggle-row">
           <span class="toggle-label">Animações de captura</span>
-          <label class="toggle">
-            <!-- TODO: adicione o input type="checkbox" com id="toggleAnimations" checked -->
+          <label class="toggle" aria-label="Ativar animacoes de captura">
+            <input type="checkbox" id="toggleAnimations" checked />
             <span class="toggle-slider"></span>
           </label>
         </div>
       </div>
 
-      <!-- TODO: crie o botão de iniciar partida
-           classe: btn-start
-           chama: startGame()
-           texto: "Iniciar partida" com uma seta → -->
+      <!-- Botão de iniciar partida criado -->
+      <button class="btn-start" onclick="startGame()">
+        Iniciar partida
+        <span class="btn-arrow" aria-hidden="true">➔</span>
+      </button>
 
     </div>
   </div><!-- /modal-overlay -->
@@ -110,41 +123,27 @@
 
   <!-- ═══════════════════════════════════════════════════
        APP — layout principal
-       Fica oculto até o jogo começar (startGame())
   ════════════════════════════════════════════════════ -->
   <div class="app" id="app">
 
-    <!-- ─────────────────────────────────────────────────
-         NAV LATERAL
-
-         Por que <nav> e não <div>?
-         Tags semânticas descrevem o significado do conteúdo:
-         <nav>     → área de navegação/controle
-         <main>    → conteúdo principal
-         <section> → seção com tema próprio
-         <aside>   → conteúdo relacionado mas secundário
-
-         Isso ajuda leitores de tela, SEO e outros desenvolvedores
-         a entenderem a estrutura sem ler todo o código.
-
-         TODO: adicione aria-label="Painel do jogo"
-    ──────────────────────────────────────────────────── -->
-    <nav class="sidebar" id="sidebar">
+    <!-- aria-label adicionado ao nav -->
+    <nav class="sidebar" id="sidebar" aria-label="Painel do jogo">
 
       <div class="sidebar-logo">
-        <span class="logo-icon">♟</span>
+        <span class="logo-icon" aria-hidden="true">♟</span>
         <span class="logo-text">Xadrez</span>
-        <!-- TODO: adicione um botão para recolher a sidebar
-             Dica: classe btn-icon sidebar-toggle, ícone ‹ -->
+        <!-- Botão para recolher a sidebar criado -->
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Recolher painel"
+          onclick="toggleSidebar()">‹</button>
       </div>
 
       <!-- ── SEÇÃO: Partida atual ── -->
-      <!-- TODO: o que faz toggleSection()? implemente em ui/nav.js -->
+      <!-- Resposta: toggleSection() deve alternar uma classe (ex: 'collapsed') que muda a propriedade display, max-height ou grid-template-rows da .nav-section-body para fazer o efeito sanfona (acordeão). -->
       <section class="nav-section" id="sectionPartida">
-        <button class="nav-section-header" onclick="toggleSection('sectionPartida')">
-          <span class="nav-section-icon">⚔️</span>
+        <button class="nav-section-header" onclick="toggleSection('sectionPartida')" aria-expanded="true">
+          <span class="nav-section-icon" aria-hidden="true">⚔️</span>
           <span>Partida</span>
-          <span class="nav-chevron">▾</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
         </button>
         <div class="nav-section-body">
 
@@ -158,87 +157,125 @@
 
           <div class="info-card">
             <div class="info-label">Modo</div>
-            <!-- TODO: adicione id="modeDisplay" aqui -->
-            <div class="info-value">—</div>
+            <!-- id="modeDisplay" adicionado -->
+            <div class="info-value" id="modeDisplay">—</div>
           </div>
 
-          <!-- TODO: crie um terceiro info-card para mostrar
-               a situação do jogo (xeque, xeque-mate etc.)
-               id="statusCard", começa com display:none
-               dentro: label "Situação" e div id="gameStatus" -->
+          <!-- Terceiro info-card criado para Situação -->
+          <div class="info-card" id="statusCard" style="display:none">
+            <div class="info-label">Situação</div>
+            <div class="info-value" id="gameStatus"></div>
+          </div>
 
         </div>
       </section>
 
       <!-- ── SEÇÃO: Placar ── -->
       <section class="nav-section" id="sectionPlacar">
-        <button class="nav-section-header" onclick="toggleSection('sectionPlacar')">
-          <span class="nav-section-icon">🏆</span>
+        <button class="nav-section-header" onclick="toggleSection('sectionPlacar')" aria-expanded="true">
+          <span class="nav-section-icon" aria-hidden="true">🏆</span>
           <span>Placar</span>
-          <span class="nav-chevron">▾</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
         </button>
         <div class="nav-section-body">
 
-          <!-- TODO: monte o score-board com dois jogadores
-               estrutura: .score-board > .score-player × 2 + .score-divider
-               ids necessários: numWhite, numBlack, scoreWhite, scoreBlack
-               peças: ♔ para brancas, ♚ para pretas -->
+          <!-- score-board montado -->
+          <div class="score-board">
+            <div class="score-player" id="scoreWhite">
+              <div class="score-piece" aria-hidden="true">♔</div>
+              <div class="score-info">
+                <div class="score-name">Brancas</div>
+                <div class="scoreWhite" id="numWhite">0</div>
+              </div>
+            </div>
+            <div class="score-divider" aria-hidden="true">X</div>
+            <div id="scoreBlack" class="score-player">
+              <div class="score-piece" aria-hidden="true">♔</div>
+              <div class="score-info">
+                <div class="score-name">Pretas</div>
+                <div class="score-num" id="numBlack">0</div>
+              </div>
+            </div>
+          </div>
 
         </div>
       </section>
 
       <!-- ── SEÇÃO: Peças capturadas ── -->
       <section class="nav-section" id="sectionCapturadas">
-        <button class="nav-section-header" onclick="toggleSection('sectionCapturadas')">
-          <span class="nav-section-icon">💀</span>
+        <button class="nav-section-header" onclick="toggleSection('sectionCapturadas')" aria-expanded="true">
+          <span class="nav-section-icon" aria-hidden="true">💀</span>
           <span>Capturadas</span>
-          <span class="nav-chevron">▾</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
         </button>
         <div class="nav-section-body">
-          <!-- TODO: adicione dois grupos de peças capturadas
-               .captured-label + .captured para cada cor
-               ids: capturedByWhite, capturedByBlack -->
+          <!-- Grupos de peças capturadas criados -->
+          <div class="captured-label">Brancas capturaram:</div>
+          <div class="captured" id="capturedByWhite" aria-label="Pecas capturadas pelas brancas"></div>
+
+          <div class="captured-label">Pretas capturaram:</div>
+          <div class="captured" id="capturedByBlack" aria-label="Pecas capturadas pelas pretas"></div>
         </div>
       </section>
 
       <!-- ── SEÇÃO: Histórico ── -->
       <section class="nav-section" id="sectionHistorico">
-        <button class="nav-section-header" onclick="toggleSection('sectionHistorico')">
-          <span class="nav-section-icon">📜</span>
+        <button class="nav-section-header" onclick="toggleSection('sectionHistorico')" aria-expanded="true">
+          <span class="nav-section-icon" aria-hidden="true">📜</span>
           <span>Histórico</span>
-          <span class="nav-chevron">▾</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
         </button>
         <div class="nav-section-body">
-          <!-- TODO: adicione a div de histórico
-               id="history", role="log", aria-live="polite"
-               Dentro: uma div.history-empty com texto inicial -->
+          <!-- Div de histórico criada -->
+          <div class="history" id="history" role="log" aria-live="polite">
+            <div class="history-empty">Nenhuma jogada ainda.</div>
+          </div>
         </div>
       </section>
 
       <!-- ── SEÇÃO: Configurações ── -->
-      <!-- TODO: por que esta seção começa fechada (aria-expanded="false")?
-           Qual a diferença visual/funcional em relação às outras? -->
+      <!-- Resposta: Esta seção começa fechada pois configurações não são o foco principal durante a partida. Reduz a poluição visual na interface para o jogador focar no histórico e no tabuleiro. -->
       <section class="nav-section" id="sectionConfig">
-        <button class="nav-section-header" onclick="toggleSection('sectionConfig')">
-          <span class="nav-section-icon">⚙️</span>
+        <button class="nav-section-header" onclick="toggleSection('sectionConfig')" aria-expanded="false">
+          <span class="nav-section-icon" aria-hidden="true">⚙️</span>
           <span>Configurações</span>
-          <span class="nav-chevron">▾</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
         </button>
         <div class="nav-section-body" style="display:none">
 
-          <!-- TODO: adicione os 3 toggles de configuração:
-               1. Animações (id="configAnimations", checked por padrão)
-               2. Mostrar movimentos válidos (id="configShowMoves", checked)
-               3. Coordenadas no tabuleiro (id="configCoords", checked) -->
+          <!-- 3 toggles de configuração adicionados -->
+          <div class="toggle-row">
+            <span class="toggle-label">Animações</span>
+            <label class="toggle" aria-label="Ativar animacoes">
+              <input type="checkbox" id="configAnimations" checked
+              onchange="syncToggle(this, 'toggleAnimations')" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Mostrar mov. válidos</span>
+            <label class="toggle" aria-label="Mostrar movimentos validos">
+              <input type="checkbox" id="configShowMoves" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Coordenadas no tabuleiro</span>
+            <label class="toggle" aria-label="Mostrar coordenadas">
+              <input type="checkbox" id="configCoords" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
 
         </div>
       </section>
 
       <div class="sidebar-footer">
-        <!-- TODO: adicione os botões:
-             1. "＋ Nova partida" → chama openModal()
-             2. "↩ Desfazer jogada" → chama undoMove(), começa disabled
-                id="btnUndo" -->
+        <!-- Botões de Nova partida e Desfazer jogada criados -->
+        <button class="btn-secondary" onclick="openModal()">＋ Nova partida</button>
+        <button class="btn-secondary" id="btnUndo" onclick="undoMove()" disabled>↩ Desfazer jogada</button>
       </div>
 
     </nav><!-- /sidebar -->
@@ -246,9 +283,6 @@
 
     <!-- ─────────────────────────────────────────────────
          ÁREA DO JOGO
-
-         <main> é o conteúdo principal da página.
-         Só deve existir UM <main> por página.
     ──────────────────────────────────────────────────── -->
     <main class="game-area" id="gameArea">
       <div class="board-wrapper" id="boardWrapper">
@@ -256,32 +290,55 @@
         <div class="board-container">
 
           <!-- Coordenadas superiores -->
-          <!-- TODO: crie a .coord-row.coord-top com as letras a até h
-               Lembre-se das células vazias nas pontas! -->
+          <div class="coord-row coord-top" aria-hidden="true">
+            <div class="coord-cell"></div>
+            <div class="coord-cell">a</div>
+            <div class="coord-cell">b</div>
+            <div class="coord-cell">c</div>
+            <div class="coord-cell">d</div>
+            <div class="coord-cell">e</div>
+            <div class="coord-cell">f</div>
+            <div class="coord-cell">g</div>
+            <div class="coord-cell">h</div>
+            <div class="coord-cell"></div>
+          </div>
 
           <div class="board-row-wrap">
 
             <!-- Números laterais esquerdos -->
-            <!-- TODO: crie a .coord-col com os números 8 até 1 -->
+            <div class="coord-col" aria-hidden="true"></div>
+              <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
 
-            <!-- CANVAS: onde o tabuleiro será desenhado via JavaScript -->
-            <!-- TODO: adicione os atributos de acessibilidade:
-                 role="application"
-                 aria-label="Tabuleiro de xadrez" -->
-            <canvas id="board" width="480" height="480"></canvas>
+            <!-- Atributos de acessibilidade adicionados no canvas -->
+            <canvas id="board" width="480" height="480" role="application" aria-label="Tabuleiro de xadrez"></canvas>
 
-            <!-- TODO: adicione a .coord-col direita (números 8 até 1) -->
+            <!-- Números laterais direitos -->
+            <div class="coord-col" aria-hidden="true">
+              <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
 
           </div>
 
-          <!-- TODO: adicione a .coord-row.coord-bottom (letras a até h) -->
+          <!-- Coordenadas inferiores -->
+          <div class="coord-row coord-bottom">
+            <div class="coord-cell"></div>
+            <div class="coord-cell">a</div>
+            <div class="coord-cell">b</div>
+            <div class="coord-cell">c</div>
+            <div class="coord-cell">d</div>
+            <div class="coord-cell">e</div>
+            <div class="coord-cell">f</div>
+            <div class="coord-cell">g</div>
+            <div class="coord-cell">h</div>
+            <div class="coord-cell"></div>
+          </div>
 
         </div><!-- /board-container -->
 
         <!-- Mensagem de status abaixo do tabuleiro -->
-        <!-- TODO: por que usar role="status" e aria-live="polite" aqui?
-             O que isso faz para leitores de tela? -->
-        <div class="board-status" id="boardStatus">
+        <!-- Resposta: role="status" junto com aria-live="polite" faz com que leitores de tela notifiquem o usuário sempre que o conteúdo desta div mudar (ex: um xeque ou fim de jogo). O "polite" significa que ele irá aguardar a fala atual terminar antes de anunciar. -->
+        <div class="board-status" id="boardStatus" role="status" aria-live="polite">
           Selecione uma peça para começar
         </div>
 
@@ -293,14 +350,12 @@
 
   <!-- ─────────────────────────────────────────────────
        SCRIPTS
-
-       type="module" permite usar import/export entre arquivos.
-       Só carregamos o main.js aqui — ele importa todo o resto.
-
-       TODO: por que não precisamos carregar board.js,
-             drawBoard.js etc. aqui separadamente?
+       Resposta: A tag type="module" permite que o JavaScript use ES Modules nativos (import / export). 
+       O navegador cuidará de carregar automaticamente os outros arquivos (.js) que forem "importados"
+       por main.js como dependência, poupando a necessidade de incluirmos múltiplas tags <script>.
   ──────────────────────────────────────────────────── -->
   <script type="module" src="main.js"></script>
 
 </body>
+
 </html>
