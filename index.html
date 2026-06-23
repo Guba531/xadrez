@@ -247,8 +247,7 @@
           <div class="toggle-row">
             <span class="toggle-label">Animações</span>
             <label class="toggle" aria-label="Ativar animacoes">
-              <input type="checkbox" id="configAnimations" checked
-              onchange="syncToggle(this, 'toggleAnimations')" />
+              <input type="checkbox" id="configAnimations" checked onchange="syncToggle(this, 'toggleAnimations')" />
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -306,8 +305,15 @@
           <div class="board-row-wrap">
 
             <!-- Números laterais esquerdos -->
-            <div class="coord-col" aria-hidden="true"></div>
-              <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+            <div class="coord-col" aria-hidden="true">
+              <div class="coord-cell">8</div>
+              <div class="coord-cell">7</div>
+              <div class="coord-cell">6</div>
+              <div class="coord-cell">5</div>
+              <div class="coord-cell">4</div>
+              <div class="coord-cell">3</div>
+              <div class="coord-cell">2</div>
+              <div class="coord-cell">1</div>
             </div>
 
             <!-- Atributos de acessibilidade adicionados no canvas -->
@@ -315,35 +321,43 @@
 
             <!-- Números laterais direitos -->
             <div class="coord-col" aria-hidden="true">
-              <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+              <div class="coord-cell">8</div>
+              <div class="coord-cell">7</div>
+              <div class="coord-cell">6</div>
+              <div class="coord-cell">5</div>
+              <div class="coord-cell">4</div>
+              <div class="coord-cell">3</div>
+              <div class="coord-cell">2</div>
+              <div class="coord-cell">1</div>
             </div>
-
           </div>
 
-          <!-- Coordenadas inferiores -->
-          <div class="coord-row coord-bottom">
-            <div class="coord-cell"></div>
-            <div class="coord-cell">a</div>
-            <div class="coord-cell">b</div>
-            <div class="coord-cell">c</div>
-            <div class="coord-cell">d</div>
-            <div class="coord-cell">e</div>
-            <div class="coord-cell">f</div>
-            <div class="coord-cell">g</div>
-            <div class="coord-cell">h</div>
-            <div class="coord-cell"></div>
-          </div>
-
-        </div><!-- /board-container -->
-
-        <!-- Mensagem de status abaixo do tabuleiro -->
-        <!-- Resposta: role="status" junto com aria-live="polite" faz com que leitores de tela notifiquem o usuário sempre que o conteúdo desta div mudar (ex: um xeque ou fim de jogo). O "polite" significa que ele irá aguardar a fala atual terminar antes de anunciar. -->
-        <div class="board-status" id="boardStatus" role="status" aria-live="polite">
-          Selecione uma peça para começar
         </div>
 
-      </div><!-- /board-wrapper -->
-    </main><!-- /game-area -->
+        <!-- Coordenadas inferiores -->
+        <div class="coord-row coord-bottom" aria-hidden="true">
+          <div class="coord-cell"></div>
+          <div class="coord-cell">a</div>
+          <div class="coord-cell">b</div>
+          <div class="coord-cell">c</div>
+          <div class="coord-cell">d</div>
+          <div class="coord-cell">e</div>
+          <div class="coord-cell">f</div>
+          <div class="coord-cell">g</div>
+          <div class="coord-cell">h</div>
+          <div class="coord-cell"></div>
+        </div>
+
+      </div><!-- /board-container -->
+
+      <!-- Mensagem de status abaixo do tabuleiro -->
+      <!-- Resposta: role="status" junto com aria-live="polite" faz com que leitores de tela notifiquem o usuário sempre que o conteúdo desta div mudar (ex: um xeque ou fim de jogo). O "polite" significa que ele irá aguardar a fala atual terminar antes de anunciar. -->
+      <div class="board-status" id="boardStatus" role="status" aria-live="polite">
+        Selecione uma peça para começar
+      </div>
+
+  </div><!-- /board-wrapper -->
+  </main><!-- /game-area -->
 
   </div><!-- /app -->
 
