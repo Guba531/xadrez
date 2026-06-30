@@ -23,7 +23,6 @@
 // inteiro, criando dependências circulares e confusão.
 // ═══════════════════════════════════════════════════════
 
-
 // ── casaValida ───────────────────────────────────────────
 // Verifica se uma posição existe dentro do tabuleiro 8×8.
 // Usada por todas as peças antes de sugerir um movimento.
@@ -34,11 +33,11 @@
 // grid[8][0] — que não existem e causariam erro.
 //
 // TODO: o que aconteceria se removêssemos essa verificação?
-//       Tente remover e veja o erro que aparece no console.
+// RESPOSTA: O JavaScript tentaria ler uma coluna de uma linha 
+// que não existe. Isso causaria o erro fatal: 
+// "TypeError: Cannot read properties of undefined".
+export const casaValida = (row, col) => row >= 0 && row < 8 && col >= 0 && col < 8;
 
-export function casaValida(row, col) {
-    return row >= 0 && row < 8 && col >= 0 && col < 8;
-}
 
 // ── casaVazia ────────────────────────────────────────────
 // Verifica se uma casa do tabuleiro não tem nenhuma peça.
@@ -47,10 +46,8 @@ export function casaValida(row, col) {
 // um estado global? Porque assim a função é pura — ela não
 // depende de nada externo e pode ser usada inclusive para
 // analisar tabuleiros hipotéticos (ex: simular jogadas).
+export const casaVazia = (row, col, grid) => grid[row][col] === null;
 
-export function casaVazia(row, col, grid) {
-    return grid[row][col] === null;
-}
 
 // ── mesmaEquipe ──────────────────────────────────────────
 // Verifica se duas peças são da mesma cor (equipe).
@@ -59,11 +56,8 @@ export function casaVazia(row, col, grid) {
 // Recebe duas peças (objetos) e compara a propriedade color.
 // Se uma das peças for null (casa vazia), retorna false —
 // casa vazia não tem equipe.
+export const mesmaEquipe = (pecaA, pecaB) => Boolean(pecaA && pecaB && pecaA.color === pecaB.color);
 
-export function mesmaEquipe(pecaA, pecaB) {
-    if (!pecaA || !pecaB) return false;
-    return pecaA.color = pecaB.color;
-}
 
 // ── clonarTabuleiro ──────────────────────────────────────
 // Cria uma cópia independente do array 2D do tabuleiro.
@@ -81,14 +75,12 @@ export function mesmaEquipe(pecaA, pecaB) {
 // TODO: pesquise a diferença entre shallow copy e deep copy.
 //       Por que um simples grid.slice() não seria suficiente
 //       para um array 2D?
+// RESPOSTA: Shallow copy copiaria apenas o array externo. As linhas 
+// continuariam apontando para a memória original. Alterar uma peça 
+// no clone alteraria a peça no tabuleiro original. A deep copy abaixo 
+// garante independência total.
+export const clonarTabuleiro = grid => grid.map(row => row.map(peca => peca ? { ...peca } : null));
 
-export function clonarTabuleiro(grid) {
-    return grid.map(row => 
-        row.map(peca =>
-            peca? { ...peca} : null
-        ) 
-    );
-}
 
 // ── posicaoParaNotacao ───────────────────────────────────
 // Converte coordenadas internas (row, col) para notação
@@ -96,12 +88,15 @@ export function clonarTabuleiro(grid) {
 //
 // No nosso grid: row 0 = fileira 8, row 7 = fileira 1
 //                col 0 = coluna a,  col 7 = coluna h
-//
+export const posicaoParaNotacao = (row, col) => `${'abcdefgh'[col]}${8 - row}`;
+
+
+// ── notacaoParaPosicao ───────────────────────────────────
 // TODO: escreva a função inversa — notacaoParaPosicao("e2")
 //       que devolve { row: 6, col: 4 }
-
-export function posicaoParaNotacao(row, col) {
-    const columns = 'abcdefgh';
-    const fileira = 8 - row;
-    return `${columns[col]} ${fileira}`;
-}
+// RESPOSTA: Função adicionada. Extrai a letra e o número e
+// converte matematicamente de volta para os índices do array.
+export const notacaoParaPosicao = notacao => ({
+    row: 8 - parseInt(notacao[1], 10),
+    col: 'abcdefgh'.indexOf(notacao[0].toLowerCase())
+});

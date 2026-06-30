@@ -99,5 +99,10 @@ window.startGame = function(){
     estado.captPorPretas = [];
     estado.numeroTurno = 1;
     
-    renderizar(); //adicionar props
+    document.getElementById('app').classList.add('visible');
+  document.querySelector('.board-wrapper').classList.add('visible');
+
+  // ↓ NOVO — só isso precisa ser adicionado hoje
+  board = new Board();
+  renderizar(ctx, board.grid, null, []);
 };

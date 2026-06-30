@@ -33,6 +33,19 @@ export function abrirModal() {
         elModal.classList.remove('hidden');
     });
 }
+// ── fecharModal ───────────────────────────────────────────
+// Esconde o modal com animação de saída.
+// A classe 'hidden' dispara a animação CSS (fadeOut + slideDown).
+// Só escondemos o elemento DEPOIS que a animação termina.
+
+export function fecharModal() {
+    elModal.classList.add('hidden');
+
+    setTimeout(() => {
+        elModal.style.display = 'none';
+    }, 280)
+}
+
 // ── lerConfiguracoes ──────────────────────────────────────
 // Lê as escolhas do usuário no modal e devolve um objeto
 // com todas as configurações da partida.
