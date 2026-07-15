@@ -37,7 +37,7 @@
 import { Board }      from './core/board.js';
 import { renderizar } from './render/drawBoard.js';
 import {abrirModal, fecharModal, lerConfiguracoes } from './ui/modal.js';
-import {
+/*import {
     mostrarNav,
     atualizarTurno,
     atualizarPlacar,
@@ -45,7 +45,7 @@ import {
     atualizarCapturadas,
     atualizarHistorico,
     setStatus
-} from './ui/nav.js';
+} from './ui/nav.js';*/
 import { posicaoParaNotacao } from './core/utils.js';
 
 // ── ESTADO DO JOGO ────────────────────────────────────────
@@ -73,7 +73,7 @@ const estado = {
 // Pegamos o canvas e seu contexto 2D uma vez.
 // O contexto (ctx) é o objeto com todos os métodos de desenho.
 
-const canvas = document.getElementById('myCanvas');
+const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 
 // ── INICIAR JOGO ──────────────────────────────────────────
@@ -101,8 +101,9 @@ window.startGame = function(){
     
     document.getElementById('app').classList.add('visible');
   document.querySelector('.board-wrapper').classList.add('visible');
+  //mostrarNav();
 
   // ↓ NOVO — só isso precisa ser adicionado hoje
-  board = new Board();
-  renderizar(ctx, board.grid, null, []);
+  //board = new Board();
+  renderizar(ctx, estado.board.grid, null, []);
 };

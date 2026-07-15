@@ -17,7 +17,7 @@
 // apenas o que é específico do peão.
 // ═══════════════════════════════════════════════════════
 
-import { Piece } from "./piece";
+import { Piece } from "./piece.js";
 import { casaValida, casaVazia, mesmaEquipe } from '../utils.js';
 
 // 'extends Piece' = Pawn herda de Piece

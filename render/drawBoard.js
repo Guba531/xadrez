@@ -49,11 +49,11 @@ const COR_PONTO_CENTRO = 'rgba(0, 0, 0, 0.18)';
 // TODO: experimente trocar as cores e ver o resultado.
 //       Como você faria para ter um tema escuro?
 
-export function desenharTabuleiro() {
-    for (let r = 0; r < tamanho; r++) {
-        for (let c = 0; c < tamanho; c++) {
+export function desenharTabuleiro(ctx) {
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
             ctx.fillStyle = (r + c) % 2 === 0 ? COR_CASA_CLARA : COR_CASA_ESCURA;
-            ctx.fillRect(c * celula, r * celula, celula, celula);
+            ctx.fillRect(c * TAMANHO_CASA, r * TAMANHO_CASA, TAMANHO_CASA, TAMANHO_CASA);
         }
     }
 }
@@ -72,30 +72,30 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos) {
 
     movimentos.forEach(({ row, col }) => {
 
-    ctx.fillStyle = COR_MOVIMENTO;
-    ctx.fillRect(
-        col * TAMANHO_CASA,
-        row * TAMANHO_CASA,
-        TAMANHO_CASA,
-        TAMANHO_CASA
-    );
+        ctx.fillStyle = COR_MOVIMENTO;
+        ctx.fillRect(
+            col * TAMANHO_CASA,
+            row * TAMANHO_CASA,
+            TAMANHO_CASA,
+            TAMANHO_CASA
+        );
 
-    // Ponto no centro — indica visualmente onde pode ir
-    // ctx.save() / ctx.restore() garante que as configurações
-    // (fillStyle, globalAlpha etc) não vazem para o próximo desenho
-    ctx.save();
-    ctx.fillStyle = COR_PONTO_CENTRO;
-    ctx.beginPath();
-    ctx.arc(
-        col * TAMANHO_CASA + TAMANHO_CASA /2, //centro x 
-        row * TAMANHO_CASA + TAMANHO_CASA /2, //centro y
-        8, // raio em pixels
-        0, //angulo inicial (0 = direita)
-        Math.PI * 2 // angulo final (2π = circulo completo)
-    );
-    ctx.fill();
-    ctx.restore();
- });
+        // Ponto no centro — indica visualmente onde pode ir
+        // ctx.save() / ctx.restore() garante que as configurações
+        // (fillStyle, globalAlpha etc) não vazem para o próximo desenho
+        ctx.save();
+        ctx.fillStyle = COR_PONTO_CENTRO;
+        ctx.beginPath();
+        ctx.arc(
+            col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
+            row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
+            8, // raio em pixels
+            0, //angulo inicial (0 = direita)
+            Math.PI * 2 // angulo final (2π = circulo completo)
+        );
+        ctx.fill();
+        ctx.restore();
+    });
 }
 
 // ── desenharPecas ─────────────────────────────────────────
@@ -115,7 +115,7 @@ export function desenharPecas(ctx, grid) {
     ctx.textBaseline = 'middle';
 
     for (let row = 0; row < 8; row++) {
-        for(let col = 0; col < 8; col++) {
+        for (let col = 0; col < 8; col++) {
             const peca = grid[row][col];
             if (!peca) continue; // casa vazia = pula
 
