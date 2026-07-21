@@ -37,15 +37,15 @@
 import { Board } from './core/board.js';
 import { renderizar } from './render/drawBoard.js';
 import { abrirModal, fecharModal, lerConfiguracoes } from './ui/modal.js';
-/*import {
+import {
     mostrarNav,
     atualizarTurno,
     atualizarPlacar,
     animarPlacar,
     atualizarCapturadas,
-    atualizarHistorico,
+    adicionarHistorico,
     setStatus
-} from './ui/nav.js';*/
+} from './ui/nav.js';
 import { posicaoParaNotacao } from './core/utils.js';
 
 // ── ESTADO DO JOGO ────────────────────────────────────────
@@ -101,7 +101,7 @@ window.startGame = function () {
 
     document.getElementById('app').classList.add('visible');
     document.querySelector('.board-wrapper').classList.add('visible');
-    //mostrarNav();
+    mostrarNav();
 
     // ↓ NOVO — só isso precisa ser adicionado hoje
     //board = new Board();
@@ -157,11 +157,11 @@ function processarClique(row, col) {
         estado.movValidos = estado.board.getValidMoves(row, col);
 
         const qtd = estado.movValidos.length;
-        /*setStatus(
+        setStatus(
             qtd > 0
                 ? `${peca.symbol} selecionado - ${qtd} movimento${qtd > 1 ? 's' : ''} disponivel${qtd > 1 ? 'is' : ''}`
                 : `${peca.symbol} nao tem movimentos disponiveis`
-        );*/
+        );
 
         renderizarEstado();
         return;
@@ -170,8 +170,8 @@ function processarClique(row, col) {
     //----DESSELECIONAR----------------------------------
     estado.selecionado = null;
     estado.movValidos = [];
-    //setStatus(`${estado.turnoAtual === 'white' ? 'Brancas' : 'Pretas'} - selecione uma peca`);
-    //renderizarEstado();
+    setStatus(`${estado.turnoAtual === 'white' ? 'Brancas' : 'Pretas'} - selecione uma peca`);
+    renderizarEstado();
 }
 
 // ── EXECUTAR MOVIMENTO ────────────────────────────────────
