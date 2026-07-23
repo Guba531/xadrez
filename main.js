@@ -76,6 +76,10 @@ const estado = {
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 
+canvas.addEventListener('click', (e) => {
+    console.log('clique detectado no canvas!');
+});
+
 // ── INICIAR JOGO ──────────────────────────────────────────
 // Chamada pelo botão do modal. Lê as configurações,
 // monta o tabuleiro e prepara a interface.
@@ -90,8 +94,13 @@ window.startGame = function () {
     estado.animacoesAtivas = estado.config.animacoes;
     fecharModal();
 
+    document.getElementById('app').classList.add('visible');
+    document.querySelector('.board-wrapper').classList.add('visible');
+    mostrarNav();
+
+    // Reinicia O Estado
     estado.board = new Board();
-    estado.turnoAtual = 'White';
+    estado.turnoAtual = 'white';
     estado.selecionado = null;
     estado.movValidos = [];
     estado.placar = { white: 0, black: 0 };
@@ -99,13 +108,15 @@ window.startGame = function () {
     estado.captPorPretas = [];
     estado.numeroTurno = 1;
 
-    document.getElementById('app').classList.add('visible');
-    document.querySelector('.board-wrapper').classList.add('visible');
-    mostrarNav();
+    atualizarTurno('white');
+    atualizarPlacar(estado.placar);
+    atualizarModoDisplay();
 
     // ↓ NOVO — só isso precisa ser adicionado hoje
     //board = new Board();
     renderizar(ctx, estado.board.grid, null, []);
+
+    setStatus('Brancas comecam - selecione uma peca');
 };
 
 // ── CLIQUE NO CANVAS ──────────────────────────────────────
@@ -140,6 +151,9 @@ canvas.addEventListener('click', (evento) => {
 //   - Caso contrário → deseleciona
 function processarClique(row, col) {
     const peca = estado.board.grid[row][col];
+    console.log('clicou em:', row, col);
+    console.log('peça:', peca);
+    console.log('turno atual:', estado.turnoAtual);
 
     //----EXECUTAR MOVIMENTO------------------------------
     // Verifica se o clique foi em uma das casas validas
@@ -192,7 +206,7 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
             animarPlacar('black');
         }
         atualizarPlacar(estado.placar);
-        atualizarCapturas(estado.captPorBrancas, estado.captPorPretas);
+        atualizarCapturadas(estado.captPorBrancas, estado.captPorPretas);
     }
 
     //Registro no historico
@@ -219,13 +233,31 @@ function renderizarEstado() {
     renderizar(ctx, estado.board.grid, estado.selecionado, estado.movValidos);
 }
 
+function atualizarModoDisplay() {
+    const el = document.getElementById('modeDisplay');
+    if (!el) return;
+
+    const { modo, dificuldade, corJogador } = estado.config;
+    if (modo === 'ai') {
+        const cor = corJogador === 'white' ? 'Brancas' : 'Pretas';
+        const diff = dificuldade === 'easy' ? 'Facil' : 'Dificil';
+        el.textContent = `Voce (${cor}) × IA (${diff})`;
+    } else {
+        el.textContent = 'Dois jogadores'
+    }
+}
+
 // ── AÇÕES GLOBAIS (chamadas pelo HTML) ────────────────────
-window.openModal = function() {
+window.openModal = function () {
     document.getElementById('app').classList.remove('visible');
     document.querySelector('.board-wrapper').classList.remove('visible');
     document.getElementById('sidebar').classList.remove('visible');
-        abrirModal();
+    abrirModal();
 };
+
+window.undoMove = function () {
+    setStatus('Desfazer ainda nao implementado', 'alerta');
+}
 
 // ── INICIALIZAÇÃO ─────────────────────────────────────────
 // Quando o módulo carrega, abrimos o modal imediatamente.

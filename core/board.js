@@ -107,7 +107,7 @@ export class Board {
     const capturada = this.grid[paraRow][paraCol];
     const peca = this.grid[deRow][deCol];
 
-    this.grid[paraRow][paraColCol] = peca;
+    this.grid[paraRow][paraCol] = peca;
     this.grid[deRow][deCol] = null;
 
    //Marca que esta peca ja se moveu pelo menos uma vez

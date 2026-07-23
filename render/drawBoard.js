@@ -70,7 +70,7 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos) {
 
     );
 
-    movimentos.forEach(({ row, col }) => {
+    movimentosValidos.forEach(({ row, col }) => {
 
         ctx.fillStyle = COR_MOVIMENTO;
         ctx.fillRect(
