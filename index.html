@@ -111,13 +111,22 @@
         </div>
       </div>
 
-      <!-- Botão de iniciar partida criado -->
-      <button class="btn-start" onclick="startGame()">
-        Iniciar partida
-        <span class="btn-arrow" aria-hidden="true">➔</span>
-      </button>
-
+      <div class="toggle-row">
+        <span class="toggle-label">Destacar casas de risco</span>
+        <label class="toggle" aria-label="Ativar destaques de risco">
+          <input type="checkbox" id="toggleRisk" checked />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
     </div>
+
+    <!-- Botão de iniciar partida criado -->
+    <button class="btn-start" onclick="startGame()">
+      Iniciar partida
+      <span class="btn-arrow" aria-hidden="true">➔</span>
+    </button>
+
+  </div>
   </div><!-- /modal-overlay -->
 
 
@@ -248,6 +257,14 @@
             <span class="toggle-label">Animações</span>
             <label class="toggle" aria-label="Ativar animacoes">
               <input type="checkbox" id="configAnimations" checked onchange="syncToggle(this, 'toggleAnimations')" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Destaques de risco</span>
+            <label class="toggle" aria-label="Ativar destaques de risco">
+              <input type="checkbox" id="configRisk" checked onchange="syncToggle(this, 'toggleRisk')" />
               <span class="toggle-slider"></span>
             </label>
           </div>

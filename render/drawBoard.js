@@ -38,6 +38,8 @@ const COR_CASA_ESCURA = '#6f3d14'
 const COR_SELECIONADO = 'rgba(255, 185, 30, 0.72)';
 const COR_MOVIMENTO = 'rgba(90, 170, 90, 0.45)';
 const COR_PONTO_CENTRO = 'rgba(0, 0, 0, 0.18)';
+const COR_RISK = 'rgba(255, 59, 48, 0.4)';
+const COR_RISK_POINT = 'rgba(155, 0, 0, 0.5)';
 
 // ── desenharTabuleiro ─────────────────────────────────────
 // Desenha as 64 casas do tabuleiro.
@@ -70,9 +72,10 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos) {
 
     );
 
-    movimentosValidos.forEach(({ row, col }) => {
-
-        ctx.fillStyle = COR_MOVIMENTO;
+    movimentosValidos.forEach(({ row, col, isRisk }) => {
+    // Se isRisk for true, usa vermelho, senao verde.
+    ctx.fillStyle = isRisk ? COR_RISK : COR_MOVIMENTO;
+    
         ctx.fillRect(
             col * TAMANHO_CASA,
             row * TAMANHO_CASA,
@@ -84,7 +87,7 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos) {
         // ctx.save() / ctx.restore() garante que as configurações
         // (fillStyle, globalAlpha etc) não vazem para o próximo desenho
         ctx.save();
-        ctx.fillStyle = COR_PONTO_CENTRO;
+        ctx.fillStyle = isRisk ? COR_RISK_POINT : COR_PONTO_CENTRO;
         ctx.beginPath();
         ctx.arc(
             col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 

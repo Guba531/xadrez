@@ -19,6 +19,7 @@
 
 
 import { Pawn } from './pieces/pawn.js';
+import { Rook } from './pieces/rook.js';
 import { clonarTabuleiro } from './utils.js';
 
 export class Board {
@@ -60,18 +61,17 @@ export class Board {
             grid[6][col] = new Pawn('white');
         }
 
-        // TODO (próximas aulas): adicionar as demais peças
+        // ── Torres ─────────────────────────────────────────
+        //Torres Pretas
+        grid[0][7] = new Rook('black');
+        grid[0][0] = new Rook('black');
+
+        //Torres Brancas
+        grid[7][0] = new Rook('white');
+        grid[7][7] = new Rook('white');
+
         // A ordem da fileira de trás é sempre:
         // torre, cavalo, bispo, rainha, rei, bispo, cavalo, torre
-        //
-        // const fileiraPreta  = ['rook','knight','bishop','queen','king','bishop','knight','rook'];
-        // const fileiraFabrica = { rook: Rook, knight: Knight, bishop: Bishop, queen: Queen, king: King };
-        //
-        // fileiraPreta.forEach((tipo, col) => {
-        //   const Classe = fileiraFabrica[tipo];
-        //   grid[0][col] = new Classe('black');
-        //   grid[7][col] = new Classe('white');
-        // });
 
         return grid;
     }
@@ -94,38 +94,59 @@ export class Board {
     }
 
     // ── moverPeca ──────────────────────────────────────────
-  // Executa um movimento no tabuleiro:
-  //   1. Move a peça da origem para o destino
-  //   2. Marca que a peça já se moveu (importante para peão e roque)
-  //   3. Limpa a casa de origem
-  //   4. Retorna a peça capturada (ou null se casa estava vazia)
-  //
-  // Por que retornar a peça capturada?
-  // O main.js precisa saber se houve captura para atualizar
-  // o placar e a lista de peças capturadas na sidebar.
-  moverPeca(deRow, deCol, paraRow, paraCol) {
-    const capturada = this.grid[paraRow][paraCol];
-    const peca = this.grid[deRow][deCol];
+    // Executa um movimento no tabuleiro:
+    //   1. Move a peça da origem para o destino
+    //   2. Marca que a peça já se moveu (importante para peão e roque)
+    //   3. Limpa a casa de origem
+    //   4. Retorna a peça capturada (ou null se casa estava vazia)
+    //
+    // Por que retornar a peça capturada?
+    // O main.js precisa saber se houve captura para atualizar
+    // o placar e a lista de peças capturadas na sidebar.
+    moverPeca(deRow, deCol, paraRow, paraCol) {
+        const capturada = this.grid[paraRow][paraCol];
+        const peca = this.grid[deRow][deCol];
 
-    this.grid[paraRow][paraCol] = peca;
-    this.grid[deRow][deCol] = null;
+        this.grid[paraRow][paraCol] = peca;
+        this.grid[deRow][deCol] = null;
 
-   //Marca que esta peca ja se moveu pelo menos uma vez
-   if (peca) peca.moveu = true;
+        //Marca que esta peca ja se moveu pelo menos uma vez
+        if (peca) peca.moveu = true;
 
-   return capturada;
-  }
+        return capturada;
+    }
 
-  // ── clonar ─────────────────────────────────────────────
-  // Devolve uma cópia independente deste Board.
-  // Usado pela IA e pela verificação de xeque para simular
-  // jogadas sem alterar o estado real do jogo.
-  //
-  // TODO: por que não basta fazer const copia = this?
-  //       Teste no console e veja o que acontece ao modificar.
-  clonar() {
-    const novo = new Board();
-    novo.grid = clonarTabuleiro(this.grid);
-    return novo;
-  }
+    // ── clonar ─────────────────────────────────────────────
+    // Devolve uma cópia independente deste Board.
+    // Usado pela IA e pela verificação de xeque para simular
+    // jogadas sem alterar o estado real do jogo.
+    //
+    // TODO: por que não basta fazer const copia = this?
+    //       Teste no console e veja o que acontece ao modificar.
+    clonar() {
+        const novo = new Board();
+        novo.grid = clonarTabuleiro(this.grid);
+        return novo;
+    }
+
+    estaSendoAtacada(row, col, corDaPeca) {
+        // Percorre todo o tabuleiro
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const pecaInimiga = this.grid[r][c];
+
+                // Se encontrar uma peca do oponente
+                if (pecaInimiga && pecaInimiga.color !== corDaPeca) {
+                    //Pega os movimentos que essa peca inimiga pode fazer
+                    const movimentosInimigos = pecaInimiga.getValidMoves(r, c, this.grid);
+
+                    // Se algum desses movimentos atinge a casa (row, col)
+                    if (movimentosInimigos.some(m => m.row === row && m.col === col)) {
+                        return true; // Sim, esta sem risco!
+                    }
+                }
+            }
+        }
+        return false; // Casa segura
+    }
 }

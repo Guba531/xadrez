@@ -151,16 +151,21 @@ canvas.addEventListener('click', (evento) => {
 //   - Caso contrário → deseleciona
 function processarClique(row, col) {
     const peca = estado.board.grid[row][col];
-    console.log('clicou em:', row, col);
-    console.log('peça:', peca);
-    console.log('turno atual:', estado.turnoAtual);
 
     //----EXECUTAR MOVIMENTO------------------------------
     // Verifica se o clique foi em uma das casas validas
-    const ehMovimentoValido = estado.movValidos.some(
+
+    // 1. TENTAR MOVER (Se já houver algo selecionado e o clique for em casa válida)
+    const ehMovimentoValido = estado.movValidos.find(
         m => m.row === row && m.col === col
     );
     if (estado.selecionado && ehMovimentoValido) {
+        // Verificamos o risco ANTES de executar o movimento
+        if (ehMovimentoValido.isRisk) {
+            const confirmar = confirm("⚠️ Esta casa está sob ataque! Deseja mover mesmo assim?");
+            if (!confirmar) return; // Se cancelar, sai da funcao e nao move
+        }
+
         executarMovimento(estado.selecionado.row, estado.selecionado.col, row, col);
         return;
     }
@@ -168,17 +173,26 @@ function processarClique(row, col) {
     //----SELECIONAR PECA --------------------------------
     if (peca && peca.color === estado.turnoAtual) {
         estado.selecionado = { row, col };
-        estado.movValidos = estado.board.getValidMoves(row, col);
+
+        // Buscamos o valor do Switch na Sidebar/Configurações
+        const checkboxRisco = document.getElementById('configRisk');
+        const mostrarRisco = checkboxRisco ? checkboxRisco.checked : false;
+
+        //Pegamos os movimentos brutos e calculamos o risco para cada um
+        const brutos = estado.board.getValidMoves(row, col);
+
+        estado.movValidos = brutos.map(m => ({
+            ...m,
+            // Se o switch estiver ligado, perguntamos ao board se a casa e perigosa
+            isRisk: mostrarRisco ? estado.board.estaSendoAtacada(m.row, m.col, peca.color) : false
+        }));
 
         const qtd = estado.movValidos.length;
-        setStatus(
-            qtd > 0
-                ? `${peca.symbol} selecionado - ${qtd} movimento${qtd > 1 ? 's' : ''} disponivel${qtd > 1 ? 'is' : ''}`
-                : `${peca.symbol} nao tem movimentos disponiveis`
-        );
+        setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
 
         renderizarEstado();
         return;
+
     }
 
     //----DESSELECIONAR----------------------------------
@@ -197,7 +211,7 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
     // Atualiza capturadas e placar se houve captura
     if (capturada) {
         if (capturada.color === 'black') {
-            estado.captPorBrancas.push(capturadas.symbol);
+            estado.captPorBrancas.push(capturada.symbol);
             estado.placar.white++;
             animarPlacar('white');
         } else {

@@ -32,6 +32,7 @@
   /* Destaque de jogadas */
   --highlight-selected: rgba(255, 185, 30,  0.72);
   --highlight-move:     rgba(90,  170,  90,  0.45);
+  --highlight-risk:     rgba(255, 59, 48, 0.5);
 
   /* Acento principal */
   --accent:       #7c5c3a;

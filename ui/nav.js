@@ -29,41 +29,32 @@
 // ── toggleSection ─────────────────────────────────────────
 // Abre ou fecha uma seção da nav ao clicar no cabeçalho.
 // Chamada pelo onclick no HTML: onclick="toggleSection('sectionPlacar')"
-//
-// O CSS faz a animação — o JS só adiciona/remove a classe.
-// Separação de responsabilidades: JS controla estado,
-// CSS controla aparência.
 window.toggleSection = function(secaoId) {
     const secao = document.getElementById(secaoId);
     if (!secao) return;
 
-    const estaFechada = secao.classList.contains('collapsed');
-
-    // Toggle: se esta fechada, abre e se estiver aberta fecha.
-    secao.classList.toggle('collapsed', !estaFechada);
+    // O método toggle inverte a classe automaticamente
+    const foiFechada = secao.classList.toggle('collapsed');
 
     // Atualiza aria-expanded para acessibilidade -
-    //leitores de tela anunciam se a secao esta aberta ou fechada
+    // leitores de tela anunciam se a secao esta aberta ou fechada
     const botao = secao.querySelector('.nav-section-header');
     if (botao) {
-        botao.setAttribute('aria-expanded', estaFechada ? 'true' : 'false');
+        botao.setAttribute('aria-expanded', foiFechada ? 'false' : 'true');
     }
 };
+
 // ── mostrarNav ────────────────────────────────────────────
 // Exibe a sidebar com animação de entrada (translateX no CSS).
 // Chamada pelo main.js quando o jogo começa.
 export function mostrarNav() {
     const sidebar = document.getElementById('sidebar');
-    sidebar.classList.add('visible');
+    if (sidebar) sidebar.classList.add('visible');
 }
 
 // ── atualizarTurno ────────────────────────────────────────
 // Atualiza o card de turno na sidebar.
 // Recebe 'white' ou 'black' e atualiza texto + ícone.
-//
-// A animação de bounce na peça é feita pelo CSS —
-// removemos e re-adicionamos a classe para "resetar"
-// a animação (truque: forçar reflow com offsetWidth)
 export function atualizarTurno(cor) {
     const elPeca = document.getElementById('turnPiece');
     const elNome = document.getElementById('turnName');
@@ -100,9 +91,6 @@ export function animarPlacar(cor) {
 
 // ── atualizarCapturadas ───────────────────────────────────
 // Exibe os símbolos das peças capturadas na sidebar.
-//
-// capturadasPorBrancas = peças pretas que as brancas capturaram
-// capturadasPorPretas  = peças brancas que as pretas capturaram
 export function atualizarCapturadas(capturadasPorBrancas, capturadasPorPretas) {
     const elPorBrancas = document.getElementById('capturedByWhite');
     const elPorPretas = document.getElementById('capturedByBlack');
@@ -114,9 +102,6 @@ export function atualizarCapturadas(capturadasPorBrancas, capturadasPorPretas) {
 // ── adicionarHistorico ────────────────────────────────────
 // Adiciona uma jogada ao histórico na sidebar.
 // Usa notação simplificada (ex: "e2→e4").
-//
-// TODO: futuramente implementar notação algébrica padrão
-//       do xadrez (ex: "e4", "Nf3", "O-O" para roque)
 export function adicionarHistorico(notacao, cor, numero) {
     const el = document.getElementById('history');
     if (!el) return;
@@ -157,12 +142,11 @@ export function setStatus(mensagem, tipo = 'normal') {
     el.className = 'board-status';
 
     if (tipo === 'alerta') el.classList.add('alert');
-    if (tipo === 'sucesso') el.classList.add('success')
+    if (tipo === 'sucesso') el.classList.add('success');
 }
 
 // ── sincronizarToggle ─────────────────────────────────────
 // Mantém o toggle do modal e o da sidebar em sincronia.
-// Quando um muda, o outro acompanha.
 window.syncToggle = function(origem, destinoId) {
     const destino = document.getElementById(destinoId);
     if (destino) destino.checked = origem.checked;

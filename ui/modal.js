@@ -97,4 +97,5 @@ window.selectOption = function(grupoId, btnClicado) {
         elDifficultySection.style.display = modoIA ? 'block' : 'none';
         elColorSection.style.display = modoIA ? 'block' : 'none';
     }
+    
 };
