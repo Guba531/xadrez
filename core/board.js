@@ -20,6 +20,7 @@
 
 import { Pawn } from './pieces/pawn.js';
 import { Rook } from './pieces/rook.js';
+import { Bishop } from './pieces/bishop.js';
 import { clonarTabuleiro } from './utils.js';
 
 export class Board {
@@ -69,6 +70,15 @@ export class Board {
         //Torres Brancas
         grid[7][0] = new Rook('white');
         grid[7][7] = new Rook('white');
+
+        // ── Bispos ─────────────────────────────────────────
+        //Bispos Pretos
+        grid[0][2] = new Bishop('black');
+        grid[0][5] = new Bishop('black');
+
+        //Bispos Brancos
+        grid[7][2] = new Bishop('white');
+        grid[7][5] = new Bishop('white');
 
         // A ordem da fileira de trás é sempre:
         // torre, cavalo, bispo, rainha, rei, bispo, cavalo, torre
