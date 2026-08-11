@@ -24,6 +24,7 @@ import { Bishop } from './pieces/bishop.js';
 import { Queen } from './pieces/queen.js';
 import { King } from './pieces/king.js';
 import { clonarTabuleiro } from './utils.js';
+import { Knight } from './pieces/knight.js';
 
 export class Board {
 
@@ -95,6 +96,15 @@ export class Board {
 
         // Rainha Branca
         grid[7][3] = new Queen('white');
+
+        // ── Cavalos ──────────────────────────────────────────
+        // Cavalo Preto
+        grid[0][1] = new Knight('black');
+        grid[0][6] = new Knight('black');
+
+        //Cavalo Branco
+        grid[7][1] = new Knight('white');
+        grid[7][6] = new Knight('white');
 
         // A ordem da fileira de trás é sempre:
         // torre, cavalo, bispo, rainha, rei, bispo, cavalo, torre

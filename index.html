@@ -109,24 +109,23 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Destacar casas de risco</span>
+          <label class="toggle" aria-label="Ativar destaques de risco">
+            <input type="checkbox" id="toggleRisk" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
 
-      <div class="toggle-row">
-        <span class="toggle-label">Destacar casas de risco</span>
-        <label class="toggle" aria-label="Ativar destaques de risco">
-          <input type="checkbox" id="toggleRisk" checked />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
+      <!-- Botão de iniciar partida (Movido para dentro do Modal) -->
+      <button class="btn-start" onclick="startGame()">
+        Iniciar partida
+        <span class="btn-arrow" aria-hidden="true">➔</span>
+      </button>
+
     </div>
-
-    <!-- Botão de iniciar partida criado -->
-    <button class="btn-start" onclick="startGame()">
-      Iniciar partida
-      <span class="btn-arrow" aria-hidden="true">➔</span>
-    </button>
-
-  </div>
   </div><!-- /modal-overlay -->
 
 
@@ -141,9 +140,8 @@
       <div class="sidebar-logo">
         <span class="logo-icon" aria-hidden="true">♟</span>
         <span class="logo-text">Xadrez</span>
-        <!-- Botão para recolher a sidebar criado -->
-        <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Recolher painel" title="Recolher painel">
-         <!-- onclick="toggleSidebar()"> --> ‹ </button>
+        <!-- Botão para recolher a sidebar corrigido -->
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Recolher painel" title="Recolher painel" onclick="toggleSidebar()"> ‹ </button>
       </div>
 
       <!-- ── SEÇÃO: Partida atual ── -->
@@ -194,7 +192,8 @@
               <div class="score-piece" aria-hidden="true">♔</div>
               <div class="score-info">
                 <div class="score-name">Brancas</div>
-                <div class="scoreWhite" id="numWhite">0</div>
+                <!-- Classe corrigida para score-num -->
+                <div class="score-num" id="numWhite">0</div>
               </div>
             </div>
             <div class="score-divider" aria-hidden="true">X</div>
@@ -373,8 +372,8 @@
         Selecione uma peça para começar
       </div>
 
-  </div><!-- /board-wrapper -->
-  </main><!-- /game-area -->
+    </div><!-- /board-wrapper -->
+    </main><!-- /game-area -->
 
   </div><!-- /app -->
 
