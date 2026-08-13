@@ -781,6 +781,28 @@ button {
   font-weight: 500;
 }
 
+/* Sidebar em modo reduzido */
+.sidebar.collapsed-manual {
+  width: 70px;
+  min-width: 70px;
+}
+
+/* Esconde textos e elementos internos quando a barra está pequena */
+.sidebar.collapsed-manual .logo-text,
+.sidebar.collapsed-manual .nav-section,
+.sidebar.collapsed-manual .sidebar-footer button span:not(.logo-icon),
+.sidebar.collapsed-manual .btn-secondary {
+  display: none;
+}
+
+/* Mantém apenas os ícones visíveis se necessário, ou apenas o logo */
+.sidebar.collapsed-manual .sidebar-logo {
+  justify-content: center;
+}
+
+.sidebar.collapsed-manual .sidebar-footer {
+  align-items: center;
+}
 
 /* ───────────────────────────────────────────────────────
    9. ANIMAÇÕES @keyframes
@@ -847,3 +869,4 @@ button {
   background:    var(--accent-soft);
   border-radius: 3px;
 }
+

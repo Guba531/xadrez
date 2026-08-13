@@ -47,6 +47,7 @@ import {
     setStatus
 } from './ui/nav.js';
 import { posicaoParaNotacao } from './core/utils.js';
+import { sincronizarConfiguracoesInicias } from './ui/nav.js';
 
 // ── ESTADO DO JOGO ────────────────────────────────────────
 // Todas as variáveis que descrevem a situação atual da partida.
@@ -111,6 +112,7 @@ window.startGame = function () {
     atualizarTurno('white');
     atualizarPlacar(estado.placar);
     atualizarModoDisplay();
+    sincronizarConfiguracoesInicias(estado.config);
 
     // ↓ NOVO — só isso precisa ser adicionado hoje
     //board = new Board();
@@ -277,3 +279,33 @@ window.undoMove = function () {
 // Quando o módulo carrega, abrimos o modal imediatamente.
 // Nenhum jogo existe ainda — o usuário precisa configurar.
 abrirModal();
+
+//---LISTENERS DE CONFIGURACAO NA SIDEBAR---
+
+// 1. Logica de Coordenadas
+document.getElementById('configCoords').addEventListener('change', (e) => {
+    const coords = document.querySelectorAll('.coord-row, .coord-col');
+    coords.forEach(el => el.computedStyleMap.opacity = e.target.checked ? '1' : '0');
+});
+
+// Logica de Mostrar / Esconder Movimentos (Verde)
+document.getElementById('configShowMoves').addEventListener('change', (e) => {
+    // Se o usuario desmarcar, limpamos os movimentos validos atuais
+    if (!e.target.checked) {
+        estado.movValidos = [];
+    } else if (estado.selecionado) {
+        // Se marcar e houver algo selecionado, recalcula
+        processarClique(estado.selecionado.row, estado.selecionado.col);
+    }
+    renderizarEstado();
+});
+
+// 3. Sincronizar o Risco
+document.getElementById('configRisk').addEventListener('change', (e) => {
+    // Quando mudar o risco, se tiver algo selecionado, redesenhamos
+    if (estado.selecionado) {
+        processarClique(estado.selecionado.row, estado.selecionado.col);
+    } else {
+        renderizarEstado();
+    }
+});

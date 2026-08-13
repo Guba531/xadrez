@@ -150,4 +150,39 @@ export function setStatus(mensagem, tipo = 'normal') {
 window.syncToggle = function(origem, destinoId) {
     const destino = document.getElementById(destinoId);
     if (destino) destino.checked = origem.checked;
+    // Dispara manualmente um evento de 'change' no destino
+    // para que o listener no main.js perceba a mudança!
+    destino.dispatchEvent(new Event('change'));
 };
+
+// ── toggleSidebar ─────────────────────────────────────────
+// Recolhe ou expande a sidebar inteira (efeito mini-menu).
+// Chamada pelo botão "sidebarToggle" no HTML.
+window.toggleSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    const btn = document.getElementById('sidebarToggle');
+
+    // Alterna a classe que define a largura reduzida no CSS
+    sidebar.classList.toggle('collapsed-manual');
+
+    // Muda o icone de < para > dependendo do estado
+    if (sidebar.classList.contains('collapsed-manual')) {
+        btn.innerHTML = '›';
+        btn.title = "Expandir painel";
+    } else {
+        btn.innerHTML = '‹';
+        btn.title = "Recolher painel"
+    }
+};
+
+// ── sincronizarConfiguracoesIniciais ──────────────────────
+// Garante que, ao abrir o jogo, os toggles da sidebar 
+// reflitam o que foi escolhido no modal.
+export function sincronizarConfiguracoesInicias(config) {
+    const toggleAnim = document.getElementById('configAnimations');
+    const toggleRisk = document.getElementById('configRisk');
+
+    if (toggleAnim) toggleAnim.checked = config.animacoes;
+    // O risco geralmente comeca ligado por padrao se voce configurou assim
+    if (toggleRisk) toggleRisk.checked = true;
+}
