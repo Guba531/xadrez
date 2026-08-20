@@ -72,10 +72,30 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos) {
 
     );
 
-    movimentosValidos.forEach(({ row, col, isRisk }) => {
-    // Se isRisk for true, usa vermelho, senao verde.
-    ctx.fillStyle = isRisk ? COR_RISK : COR_MOVIMENTO;
-    
+    movimentosValidos.forEach(({ row, col, isRisk, isCapture }) => {
+
+        const estiloCores = getComputedStyle(document.documentElement);
+        const corVerdeNormal = estiloCores.getPropertyValue('--highlight-move');
+        const corRisco = estiloCores.getPropertyValue('--highlight-risk');
+        const corSuaCaptura = estiloCores.getPropertyValue('--highlight-capture');
+        const corAlerta = estiloCores.getPropertyValue('--highlight-alert');
+
+        if (isRisk && isCapture) {
+            // CASO ESPECIAL: E uma captura, mas a casa esta protegida pelo inimigo!
+            ctx.fillStyle = corAlerta; // Laranja (Alerta de Troca)
+        }
+        else if (isRisk) {
+            // E apenas um movimento perigoso para uma casa vazia
+            ctx.fillStyle = corRisco; // Vermelho
+        }
+        else if (isCapture) {
+            // E uma captura segura
+            ctx.fillStyle = corSuaCaptura; // Seu verde claro
+        }
+        else {
+            // Movimento normal e seguro
+            ctx.fillStyle = corVerdeNormal; // Verde padrao
+        }
         ctx.fillRect(
             col * TAMANHO_CASA,
             row * TAMANHO_CASA,
@@ -83,21 +103,42 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos) {
             TAMANHO_CASA
         );
 
-        // Ponto no centro — indica visualmente onde pode ir
-        // ctx.save() / ctx.restore() garante que as configurações
-        // (fillStyle, globalAlpha etc) não vazem para o próximo desenho
-        ctx.save();
-        ctx.fillStyle = isRisk ? COR_RISK_POINT : COR_PONTO_CENTRO;
-        ctx.beginPath();
-        ctx.arc(
-            col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
-            row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
-            8, // raio em pixels
-            0, //angulo inicial (0 = direita)
-            Math.PI * 2 // angulo final (2π = circulo completo)
-        );
-        ctx.fill();
-        ctx.restore();
+        // --- DESENHO DOS ICONES (ALVO OU PONTO) --- 
+
+        if (isCapture) {
+            // Ponto no centro — indica visualmente onde pode ir
+            // ctx.save() / ctx.restore() garante que as configurações
+            // (fillStyle, globalAlpha etc) não vazem para o próximo desenho
+            ctx.save();
+            ctx.strokeStyle = (isRisk) ? 'rgba(180, 80, 0, 0.9)' : 'rgba(0, 150, 0, 0.8)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(
+                col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
+                row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
+                22, // raio em pixels
+                0, //angulo inicial (0 = direita)
+                Math.PI * 2 // angulo final (2π = circulo completo)
+            );
+            ctx.stroke();
+            ctx.restore();
+
+        } else {
+            // Desenha o pontinho para casas vazias
+            ctx.save();
+            ctx.fillStyle = isRisk ? 'rgba(150, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.15)';
+            ctx.beginPath();
+            ctx.arc(
+                col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
+                row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
+                8, // raio em pixels
+                0, //angulo inicial (0 = direita)
+                Math.PI * 2
+            );
+            ctx.fill();
+            ctx.restore();
+
+        }
     });
 }
 

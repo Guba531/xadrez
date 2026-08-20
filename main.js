@@ -182,13 +182,18 @@ function processarClique(row, col) {
 
         //Pegamos os movimentos brutos e calculamos o risco para cada um
         const brutos = estado.board.getValidMoves(row, col);
-
-        estado.movValidos = brutos.map(m => ({
-            ...m,
+        
+        estado.movValidos = brutos.map(m => {
+            return {
+            row: m.row,
+            col: m.col,
+            // O Board diz se a casa e perigosa
             // Se o switch estiver ligado, perguntamos ao board se a casa e perigosa
-            isRisk: mostrarRisco ? estado.board.estaSendoAtacada(m.row, m.col, peca.color) : false
-        }));
-
+            isRisk: estado.board.estaSendoAtacada(m.row, m.col, peca.color),
+            isCapture: estado.board.grid[m.row][m.col] !== null
+       };
+     });
+    
         const qtd = estado.movValidos.length;
         setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
 
