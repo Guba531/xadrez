@@ -174,7 +174,7 @@ export class Board {
                 // Se encontrar uma peca do oponente
                 if (pecaInimiga && pecaInimiga.color !== corDaPeca) {
                     //Pega os movimentos que essa peca inimiga pode fazer
-                    const movimentosInimigos = pecaInimiga.getValidMoves(r, c, this.grid);
+                    const movimentosInimigos = pecaInimiga.getAttackedSquares(r, c, this.grid);
 
                     // Se algum desses movimentos atinge a casa (row, col)
                     if (movimentosInimigos.some(m => m.row === row && m.col === col)) {
@@ -184,5 +184,24 @@ export class Board {
             }
         }
         return false; // Casa segura
+    }
+
+    localizarRei(cor) {
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const p = this.grid[r][c];
+                if (p && p.type === 'king' && p.color === cor) {
+                    return { row: r, col: c };
+                }
+            }
+        }
+        return null;
+    }
+
+    estaEmXeque(cor) {
+        const reiPos = this.localizarRei(cor);
+        if (!reiPos) return false;
+        // O Rei esta em xeque se a casa dele "esta sendo atacada"
+        return this.estaSendoAtacada(reiPos.row, reiPos.col, cor);
     }
 }

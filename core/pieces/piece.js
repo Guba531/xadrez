@@ -72,4 +72,10 @@ export class Piece {
   toString() {
     return `${this.color} ${this.type} (${this.symbol})`;
   }
+
+  getAttackedSquares(row, col, grid) {
+    // Por padrao, para a maioria das pecas
+    // as casas atacadas sao seus movimentos validos.
+    return this.getValidMoves(row, col, grid);
+  }
 }

@@ -213,6 +213,18 @@ function processarClique(row, col) {
 // Aplica o movimento ao board, atualiza o estado e a UI.
 function executarMovimento(deRow, deCol, paraRow, paraCol) {
     const pecaMovida = estado.board.grid[deRow][deCol];
+
+    //---LOGICA DO ROQUE---
+    // Buscamos os dados extras do movimento que o jogador escolheu
+    const movimentoData = estado.movValidos.find(m => m.row === paraRow && m.col === paraCol);
+
+    if (movimentoData && movimentoData.isCastling) {
+        const torre = estado.board.grid[deRow][rookFromCol];
+        estado.board.grid[deRow][rookToCol] = torre;
+        estado.board.grid[deRow][rookFromCol] = null;
+        if (torre) torre.moveu = true;
+    }
+
     const capturada = estado.board.moverPeca(deRow, deCol, paraRow, paraCol);
 
     // Atualiza capturadas e placar se houve captura

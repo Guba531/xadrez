@@ -115,4 +115,18 @@ export class Pawn extends Piece {
 
     return movimentos;
   }
+
+  getAttackedSquares(row, col, grid) {
+    const ataques = [];
+    const direcao = this.color === 'white' ? -1 : 1;
+
+    [-1, 1].forEach(ladoCol => {
+      const atkRow = row + direcao;
+      const atkCol = col + ladoCol;
+      if (casaValida(atkRow, atkCol)) {
+        ataques.push({ row: atkRow, col: atkCol });
+      }
+    });
+    return ataques;
+  }
 }
