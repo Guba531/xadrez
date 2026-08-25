@@ -182,24 +182,23 @@ function processarClique(row, col) {
 
         //Pegamos os movimentos brutos e calculamos o risco para cada um
         const brutos = estado.board.getValidMoves(row, col);
-        
+
         estado.movValidos = brutos.map(m => {
             return {
-            row: m.row,
-            col: m.col,
-            // O Board diz se a casa e perigosa
-            // Se o switch estiver ligado, perguntamos ao board se a casa e perigosa
-            isRisk: estado.board.estaSendoAtacada(m.row, m.col, peca.color),
-            isCapture: estado.board.grid[m.row][m.col] !== null
-       };
-     });
-    
+                row: m.row,
+                col: m.col,
+                // O Board diz se a casa e perigosa
+                // Se o switch estiver ligado, perguntamos ao board se a casa e perigosa
+                isRisk: estado.board.estaSendoAtacada(m.row, m.col, peca.color),
+                isCapture: estado.board.grid[m.row][m.col] !== null
+            };
+        });
+
         const qtd = estado.movValidos.length;
         setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
 
         renderizarEstado();
         return;
-
     }
 
     //----DESSELECIONAR----------------------------------
@@ -263,7 +262,22 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
 // Desenha o tabuleiro com o estado atual.
 // Centraliza a chamada para não repetir em vários lugares.
 function renderizarEstado() {
-    renderizar(ctx, estado.board.grid, estado.selecionado, estado.movValidos);
+    // Verifica se os elementos existem antes de pegar o .checked para evitar novos erros
+    const elMove = document.getElementById('configShowMoves');
+    const elRisk = document.getElementById('configRisk');
+    // Le os valores atuais dos switches na sidebar
+    const mostrarMovimentos = elMove ? elMove.checked : true;
+    const mostrarRisco = elRisk ? elRisk.checked : true;
+
+    // Passa esses valores para o renderizador
+    renderizar(
+        ctx,
+        estado.board.grid,
+        estado.selecionado,
+        estado.movValidos,
+        mostrarMovimentos,
+        mostrarRisco
+    );
 }
 
 function atualizarModoDisplay() {
@@ -308,21 +322,11 @@ document.getElementById('configCoords').addEventListener('change', (e) => {
 // Logica de Mostrar / Esconder Movimentos (Verde)
 document.getElementById('configShowMoves').addEventListener('change', (e) => {
     // Se o usuario desmarcar, limpamos os movimentos validos atuais
-    if (!e.target.checked) {
-        estado.movValidos = [];
-    } else if (estado.selecionado) {
-        // Se marcar e houver algo selecionado, recalcula
-        processarClique(estado.selecionado.row, estado.selecionado.col);
-    }
     renderizarEstado();
 });
 
 // 3. Sincronizar o Risco
 document.getElementById('configRisk').addEventListener('change', (e) => {
     // Quando mudar o risco, se tiver algo selecionado, redesenhamos
-    if (estado.selecionado) {
-        processarClique(estado.selecionado.row, estado.selecionado.col);
-    } else {
         renderizarEstado();
-    }
 });

@@ -149,10 +149,11 @@ export function setStatus(mensagem, tipo = 'normal') {
 // Mantém o toggle do modal e o da sidebar em sincronia.
 window.syncToggle = function(origem, destinoId) {
     const destino = document.getElementById(destinoId);
-    if (destino) destino.checked = origem.checked;
+    if (destino) { destino.checked = origem.checked;
     // Dispara manualmente um evento de 'change' no destino
     // para que o listener no main.js perceba a mudança!
     destino.dispatchEvent(new Event('change'));
+    }
 };
 
 // ── toggleSidebar ─────────────────────────────────────────

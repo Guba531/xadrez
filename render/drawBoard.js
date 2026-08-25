@@ -60,7 +60,7 @@ export function desenharTabuleiro(ctx) {
     }
 }
 
-export function desenharDestaques(ctx, selecionado, movimentosValidos) {
+export function desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco) {
 
     if (!selecionado) return;
 
@@ -72,72 +72,72 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos) {
 
     );
 
-    movimentosValidos.forEach(({ row, col, isRisk, isCapture }) => {
-
+    movimentosValidos.forEach(({m}) => {
         const estiloCores = getComputedStyle(document.documentElement);
+
+        // Pegamos as cores do CSS
         const corVerdeNormal = estiloCores.getPropertyValue('--highlight-move');
         const corRisco = estiloCores.getPropertyValue('--highlight-risk');
         const corSuaCaptura = estiloCores.getPropertyValue('--highlight-capture');
         const corAlerta = estiloCores.getPropertyValue('--highlight-alert');
 
-        if (isRisk && isCapture) {
-            // CASO ESPECIAL: E uma captura, mas a casa esta protegida pelo inimigo!
-            ctx.fillStyle = corAlerta; // Laranja (Alerta de Troca)
+        let deveDesenhar = false;
+        let corParaPintar = "";
+
+        // LOGICA DE DECISAO:
+        if (m.isRisk) {
+        // Se a casa for de RISCO, so pintamos se o switch de Risco estiver ON
+        if (mostrarRisco) {
+            deveDesenhar = true;
+            corParaPintar = m.isCapture ? corAlerta : corRisco; // Laranja se for comer/sacrificar
         }
-        else if (isRisk) {
-            // E apenas um movimento perigoso para uma casa vazia
-            ctx.fillStyle = corRisco; // Vermelho
+        } else {
+            if (mostrarMovimentos) {
+                deveDesenhar = true;
+                corParaPintar = m.isCapture ? corSuaCaptura : corVerdeNormal; // Verde claro ou Verde padrao
+            }
+       
         }
-        else if (isCapture) {
-            // E uma captura segura
-            ctx.fillStyle = corSuaCaptura; // Seu verde claro
-        }
-        else {
-            // Movimento normal e seguro
-            ctx.fillStyle = corVerdeNormal; // Verde padrao
-        }
-        ctx.fillRect(
-            col * TAMANHO_CASA,
-            row * TAMANHO_CASA,
+
+        // --- DESENHO DOS ICONES (ALVO OU PONTO) --- 
+        if (desenhar) {
+            ctx.fillStyle = corParaPintar;
+            ctx.fillRect(
+            m.col * TAMANHO_CASA,
+            m.row * TAMANHO_CASA,
             TAMANHO_CASA,
             TAMANHO_CASA
         );
-
-        // --- DESENHO DOS ICONES (ALVO OU PONTO) --- 
-
-        if (isCapture) {
+        ctx.save();
+        if (m.isCapture) {
             // Ponto no centro — indica visualmente onde pode ir
             // ctx.save() / ctx.restore() garante que as configurações
             // (fillStyle, globalAlpha etc) não vazem para o próximo desenho
-            ctx.save();
-            ctx.strokeStyle = (isRisk) ? 'rgba(180, 80, 0, 0.9)' : 'rgba(0, 150, 0, 0.8)';
+            ctx.strokeStyle = (m.isRisk) ? 'rgba(180, 80, 0, 0.9)' : 'rgba(0, 150, 0, 0.8)';
             ctx.lineWidth = 4;
             ctx.beginPath();
             ctx.arc(
-                col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
-                row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
+                m.col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
+                m.row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
                 22, // raio em pixels
                 0, //angulo inicial (0 = direita)
                 Math.PI * 2 // angulo final (2π = circulo completo)
             );
             ctx.stroke();
-            ctx.restore();
-
         } else {
             // Desenha o pontinho para casas vazias
-            ctx.save();
-            ctx.fillStyle = isRisk ? 'rgba(150, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.15)';
+            ctx.fillStyle = m.isRisk ? 'rgba(150, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.15)';
             ctx.beginPath();
             ctx.arc(
-                col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
-                row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
+                m.col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
+                m.row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
                 8, // raio em pixels
                 0, //angulo inicial (0 = direita)
                 Math.PI * 2
             );
             ctx.fill();
-            ctx.restore();
-
+        }
+        ctx.restore();
         }
     });
 }
@@ -201,8 +201,8 @@ export function desenharPecas(ctx, grid) {
 //
 // TODO: futuramente teremos uma 4ª camada para animações
 //       que fica entre as peças e os destaques.
-export function renderizar(ctx, grid, selecionado, movimentosValidos) {
+export function renderizar(ctx, grid, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco) {
     desenharTabuleiro(ctx);
-    desenharDestaques(ctx, selecionado, movimentosValidos);
+    desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco);
     desenharPecas(ctx, grid);
 }
