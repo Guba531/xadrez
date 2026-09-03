@@ -17,13 +17,13 @@
 // apenas o que é específico do peão.
 // ═══════════════════════════════════════════════════════
 
-import { Piece } from "./piece.js";
+import { Piece } from './piece.js';
 import { casaValida, casaVazia, mesmaEquipe } from '../utils.js';
 
 // 'extends Piece' = Pawn herda de Piece
 export class Pawn extends Piece {
 
-    constructor(color) {
+  constructor(color) {
     // super() DEVE ser a primeira linha — chama o constructor
     // da classe pai (Piece), que define this.color, this.moveu etc.
     // Sem super(), o JavaScript lança um erro.
@@ -35,9 +35,9 @@ export class Pawn extends Piece {
     // peças pretas usam símbolo preenchido (escuro).
     // Isso é padrão Unicode para xadrez.
     this.symbol = color === 'white' ? '♙' : '♟';
-    }
+  }
 
-    // ── getValidMoves ──────────────────────────────────────
+  // ── getValidMoves ──────────────────────────────────────
   // Sobrescreve o método da classe Piece com a lógica real
   // do peão. Recebe a posição atual e o estado do tabuleiro.
   //
@@ -56,9 +56,9 @@ export class Pawn extends Piece {
     // TODO: inverta os valores e veja o que acontece no jogo.
     const direcao = this.color === 'white' ? -1 : 1;
 
-    //Linha de inicio: brancas comecam na fileira 6, pretas na 1
-    // (lembrando que o array comeca em 0, de cima para baixo)
-    const linhaIncio = this.color === 'white' ? 6 : 1;
+    // Linha de início: brancas começam na fileira 6, pretas na 1
+    // (lembrando que o array começa em 0, de cima para baixo)
+    const linhaInicio = this.color === 'white' ? 6 : 1;
 
     // ── MOVER PARA FRENTE (1 casa) ──────────────────────
     // O peão só pode avançar se a casa da frente estiver VAZIA.
@@ -66,7 +66,7 @@ export class Pawn extends Piece {
     const umaFrente = row + direcao;
 
     if (casaValida(umaFrente, col) && casaVazia(grid, umaFrente, col)) {
-        movimentos.push({ row: umaFrente, col });
+      movimentos.push({ row: umaFrente, col, isCapture: false });
 
       // ── MOVER PARA FRENTE (2 casas) — primeiro movimento
       // Só permitido se:
@@ -79,8 +79,8 @@ export class Pawn extends Piece {
       //       a peça já teria se movido?
       const duasFrente = row + direcao * 2;
 
-      if (row === linhaIncio && casaValida(duasFrente, col) && casaVazia(grid, duasFrente, col)) {
-        movimentos.push({ row: duasFrente, col });
+      if (row === linhaInicio && casaValida(duasFrente, col) && casaVazia(grid, duasFrente, col)) {
+        movimentos.push({ row: duasFrente, col, isCapture: false });
       }
     }
 
@@ -90,10 +90,10 @@ export class Pawn extends Piece {
     //
     // Verificamos as duas diagonais: col - 1 e col + 1
     [-1, 1].forEach(ladoCol => {
-        const captRow = row + direcao;
-        const captCol = col + ladoCol;
+      const captRow = row + direcao;
+      const captCol = col + ladoCol;
 
-        // A casa diagonal precisa:
+      // A casa diagonal precisa:
       //   1. Existir dentro do tabuleiro
       //   2. Ter uma peça adversária (não vazia, não mesma equipe)
       if (
@@ -102,20 +102,21 @@ export class Pawn extends Piece {
         !mesmaEquipe(this, grid[captRow][captCol])
       ) {
         //sem o else: "Se a casa for válida, tiver uma peça e essa peça
-      //  for do inimigo, adicione esse movimento como uma captura válida".
-      //Se alguma das condições falhar (por exemplo, se a casa estiver vazia), 
-      // o programa simplesmente ignora o bloco de código dentro do {} e pula 
-      // para a próxima linha do seu script. Isso é muito comum no xadrez quando
-      // um movimento de captura não é possível naquela casa específica. 
-      // Quando você precisaria de um else? 
-      // colocar um else se precisar que o jogo faça outra ação caso essa captura não mude nada.
-      movimentos.push({ row: captRow, col: captCol });
+        //  for do inimigo, adicione esse movimento como uma captura válida".
+        //Se alguma das condições falhar (por exemplo, se a casa estiver vazia), 
+        // o programa simplesmente ignora o bloco de código dentro do {} e pula 
+        // para a próxima linha do seu script. Isso é muito comum no xadrez quando
+        // um movimento de captura não é possível naquela casa específica. 
+        // Quando você precisaria de um else? 
+        // coloca-se um else se precisar que o jogo faça outra ação caso essa captura não mude nada. 
+        movimentos.push({ row: captRow, col: captCol, isCapture: true });
       }
     });
 
     return movimentos;
   }
 
+  //
   getAttackedSquares(row, col, grid) {
     const ataques = [];
     const direcao = this.color === 'white' ? -1 : 1;

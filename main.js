@@ -38,16 +38,17 @@ import { Board } from './core/board.js';
 import { renderizar } from './render/drawBoard.js';
 import { abrirModal, fecharModal, lerConfiguracoes } from './ui/modal.js';
 import {
-    mostrarNav,
-    atualizarTurno,
-    atualizarPlacar,
-    animarPlacar,
-    atualizarCapturadas,
-    adicionarHistorico,
-    setStatus
+  mostrarNav,
+  atualizarTurno,
+  atualizarPlacar,
+  animarPlacar,
+  atualizarCapturadas,
+  adicionarHistorico,
+  setStatus
 } from './ui/nav.js';
 import { posicaoParaNotacao } from './core/utils.js';
-import { sincronizarConfiguracoesInicias } from './ui/nav.js';
+import { sincronizarConfiguracoesIniciais } from './ui/nav.js';
+
 
 // ── ESTADO DO JOGO ────────────────────────────────────────
 // Todas as variáveis que descrevem a situação atual da partida.
@@ -56,30 +57,26 @@ import { sincronizarConfiguracoesInicias } from './ui/nav.js';
 //
 // TODO: futuramente podemos criar um core/game.js para
 //       encapsular esse estado e a lógica de turno/xeque.
-
 const estado = {
-    board: null, // instancia de Board
-    config: null, // configuracoes da partida
-    turnoAtual: 'white', // 'white' | 'black'
-    selecionado: null, // { row, col } ou null
-    movValidos: [], // array de { row, col }
-    placar: { white: 0, black: 0 },
-    captPorBrancas: [], // simbolos das pecas capturadas pelas brancas
-    captPorPretas: [], // simbolos das pecas capturadas pelas pretas
-    numeroTurno: 1, // contador de turnos para o historico
-    animacoesAtivas: true,
+  board: null,         // instância de Board
+  config: null,         // configurações da partida
+  turnoAtual: 'white',      // 'white' | 'black'
+  selecionado: null,         // { row, col } ou null
+  movValidos: [],           // array de { row, col }
+  placar: { white: 0, black: 0 },
+  captPorBrancas: [],        // símbolos das peças capturadas pelas brancas
+  captPorPretas: [],        // símbolos das peças capturadas pelas pretas
+  numeroTurno: 1,            // contador de turnos para o histórico
+  animacoesAtivas: true,
 };
+
 
 // ── CANVAS ────────────────────────────────────────────────
 // Pegamos o canvas e seu contexto 2D uma vez.
 // O contexto (ctx) é o objeto com todos os métodos de desenho.
-
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 
-canvas.addEventListener('click', (e) => {
-    console.log('clique detectado no canvas!');
-});
 
 // ── INICIAR JOGO ──────────────────────────────────────────
 // Chamada pelo botão do modal. Lê as configurações,
@@ -88,174 +85,182 @@ canvas.addEventListener('click', (e) => {
 // Por que window.startGame?
 // O onclick no HTML chama startGame() — como estamos em
 // um ES Module, precisamos expor a função globalmente.
-
 window.startGame = function () {
-    // Lê as escolhas do modal
-    estado.config = lerConfiguracoes();
-    estado.animacoesAtivas = estado.config.animacoes;
-    fecharModal();
+  // Lê as escolhas do modal
+  estado.config = lerConfiguracoes();
+  estado.animacoesAtivas = estado.config.animacoes;
+  fecharModal();
 
-    document.getElementById('app').classList.add('visible');
-    document.querySelector('.board-wrapper').classList.add('visible');
-    mostrarNav();
+  // Mostra o app e a nav com animações CSS
+  document.getElementById('app').classList.add('visible');
+  document.querySelector('.board-wrapper').classList.add('visible');
+  mostrarNav();
 
-    // Reinicia O Estado
-    estado.board = new Board();
-    estado.turnoAtual = 'white';
-    estado.selecionado = null;
-    estado.movValidos = [];
-    estado.placar = { white: 0, black: 0 };
-    estado.captPorBrancas = [];
-    estado.captPorPretas = [];
-    estado.numeroTurno = 1;
+  // Reinicia o estado
+  estado.board = new Board();
+  estado.turnoAtual = 'white';
+  estado.selecionado = null;
+  estado.movValidos = [];
+  estado.placar = { white: 0, black: 0 };
+  estado.captPorBrancas = [];
+  estado.captPorPretas = [];
+  estado.numeroTurno = 1;
 
-    atualizarTurno('white');
-    atualizarPlacar(estado.placar);
-    atualizarModoDisplay();
-    sincronizarConfiguracoesInicias(estado.config);
+  // Atualiza a sidebar
+  atualizarTurno('white');
+  atualizarPlacar(estado.placar);
+  atualizarModoDisplay();
+  sincronizarConfiguracoesIniciais(estado.config);
 
-    // ↓ NOVO — só isso precisa ser adicionado hoje
-    //board = new Board();
-    renderizar(ctx, estado.board.grid, null, []);
+  // Desenha o tabuleiro inicial
+  renderizar(ctx, estado.board.grid, null, []);
 
-    setStatus('Brancas comecam - selecione uma peca');
+  setStatus('Brancas começam — selecione uma peça');
 };
+
 
 // ── CLIQUE NO CANVAS ──────────────────────────────────────
 // Converte coordenadas do clique (pixels) para posição
 // no grid (row, col) e decide o que fazer.
 canvas.addEventListener('click', (evento) => {
-    // getBoundingClientRect retorna tamanho e posição do canvas
-    // na tela. Precisamos disso porque o canvas pode estar
-    // redimensionado por CSS — os pixels CSS e do canvas podem
-    // ser diferentes. 
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+  // getBoundingClientRect retorna tamanho e posição do canvas
+  // na tela. Precisamos disso porque o canvas pode estar
+  // redimensionado por CSS — os pixels CSS e do canvas podem
+  // ser diferentes.
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
 
-    const pixelX = (evento.clientX - rect.left) * scaleX;
-    const pixelY = (evento.clientY - rect.top) * scaleY;
+  const pixelX = (evento.clientX - rect.left) * scaleX;
+  const pixelY = (evento.clientY - rect.top) * scaleY;
 
-    // Divide pelo tamanho da casa (60px) para obter o indice
-    const col = Math.floor(pixelX / 60);
-    const row = Math.floor(pixelY / 60);
+  // Divide pelo tamanho da casa (60px) para obter o índice
+  const col = Math.floor(pixelX / 60);
+  const row = Math.floor(pixelY / 60);
 
-    // Garante que o clique foi dentro do tabuleiro
-    if (col < 0 || col > 7 || row < 0 || row > 7) return;
+  // Garante que o clique foi dentro do tabuleiro
+  if (col < 0 || col > 7 || row < 0 || row > 7) return;
 
-    processarClique(row, col);
+  processarClique(row, col);
 });
 
-//-----PROCESSAR CLIQUE-----------------------------------
+// ── PROCESSAR CLIQUE ──────────────────────────────────────
 // Lógica principal de interação:
 //   - Se há peça selecionada e clicou em movimento válido → move
 //   - Se clicou em peça do turno atual → seleciona
 //   - Caso contrário → deseleciona
 function processarClique(row, col) {
-    const peca = estado.board.grid[row][col];
+  const peca = estado.board.grid[row][col];
 
-    //----EXECUTAR MOVIMENTO------------------------------
-    // Verifica se o clique foi em uma das casas validas
+  // 1. TENTAR MOVER (Se já houver algo selecionado e o clique for em casa válida)
+  const ehMovimentoValido = estado.movValidos.find(m => m.row === row && m.col === col);
 
-    // 1. TENTAR MOVER (Se já houver algo selecionado e o clique for em casa válida)
-    const ehMovimentoValido = estado.movValidos.find(
-        m => m.row === row && m.col === col
-    );
-    if (estado.selecionado && ehMovimentoValido) {
-        // Verificamos o risco ANTES de executar o movimento
-        if (ehMovimentoValido.isRisk) {
-            const confirmar = confirm("⚠️ Esta casa está sob ataque! Deseja mover mesmo assim?");
-            if (!confirmar) return; // Se cancelar, sai da funcao e nao move
-        }
-
-        executarMovimento(estado.selecionado.row, estado.selecionado.col, row, col);
-        return;
+  if (estado.selecionado && ehMovimentoValido) {
+    // Verificamos o risco ANTES de executar o movimento
+    if (ehMovimentoValido.isRisk) {
+      const confirmar = confirm("⚠️ Esta casa está sob ataque! Deseja mover mesmo assim?");
+      if (!confirmar) return; // Se cancelar, sai da função e não move
     }
 
-    //----SELECIONAR PECA --------------------------------
-    if (peca && peca.color === estado.turnoAtual) {
-        estado.selecionado = { row, col };
+    executarMovimento(estado.selecionado.row, estado.selecionado.col, row, col);
+    return; // Movimento feito, encerra aqui
+  }
 
-        // Buscamos o valor do Switch na Sidebar/Configurações
-        const checkboxRisco = document.getElementById('configRisk');
-        const mostrarRisco = checkboxRisco ? checkboxRisco.checked : false;
+  // 2. SELECIONAR PEÇA (Se clicou em uma peça da sua cor)
+  if (peca && peca.color === estado.turnoAtual) {
+    estado.selecionado = { row, col };
 
-        //Pegamos os movimentos brutos e calculamos o risco para cada um
-        const brutos = estado.board.getValidMoves(row, col);
+    // Buscamos o valor do Switch na Sidebar/Configurações
+    const checkboxRisco = document.getElementById('configRisk');
+    const mostrarRisco = checkboxRisco ? checkboxRisco.checked : false;
 
-        estado.movValidos = brutos.map(m => {
-            return {
-                row: m.row,
-                col: m.col,
-                // O Board diz se a casa e perigosa
-                // Se o switch estiver ligado, perguntamos ao board se a casa e perigosa
-                isRisk: estado.board.estaSendoAtacada(m.row, m.col, peca.color),
-                isCapture: estado.board.grid[m.row][m.col] !== null
-            };
-        });
+    // Pegamos os movimentos brutos e calculamos o risco para cada um
+    const brutos = estado.board.getValidMoves(row, col);
 
-        const qtd = estado.movValidos.length;
-        setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
+    estado.movValidos = brutos.map(m => {
+      return {
+        row: m.row,
+        col: m.col,
+        // O Board diz se a casa é perigosa
+        isRisk: estado.board.estaSendoAtacada(m.row, m.col, peca.color),
+        // O Main verifica se a casa de destino tem uma peça (Capture)
+        isCapture: estado.board.grid[m.row][m.col] !== null
+      };
+    });
 
-        renderizarEstado();
-        return;
-    }
+    const qtd = estado.movValidos.length;
+    setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
 
-    //----DESSELECIONAR----------------------------------
-    estado.selecionado = null;
-    estado.movValidos = [];
-    setStatus(`${estado.turnoAtual === 'white' ? 'Brancas' : 'Pretas'} - selecione uma peca`);
     renderizarEstado();
+    return; // Seleção feita, encerra aqui
+  }
+
+  // 3. DESSELECIONAR (Se clicou em casa vazia ou inválida)
+  estado.selecionado = null;
+  estado.movValidos = [];
+  setStatus(`${estado.turnoAtual === 'white' ? 'Brancas' : 'Pretas'} — selecione uma peça`);
+  renderizarEstado();
 }
 
 // ── EXECUTAR MOVIMENTO ────────────────────────────────────
 // Aplica o movimento ao board, atualiza o estado e a UI.
 function executarMovimento(deRow, deCol, paraRow, paraCol) {
-    const pecaMovida = estado.board.grid[deRow][deCol];
+  const pecaMovida = estado.board.grid[deRow][deCol];
 
-    //---LOGICA DO ROQUE---
-    // Buscamos os dados extras do movimento que o jogador escolheu
-    const movimentoData = estado.movValidos.find(m => m.row === paraRow && m.col === paraCol);
+  // --- [NOVO] LÓGICA DO ROQUE ---
+  // Buscamos os dados extras do movimento que o jogador escolheu
+  const movimentoData = estado.movValidos.find(m => m.row === paraRow && m.col === paraCol);
 
-    if (movimentoData && movimentoData.isCastling) {
-        const torre = estado.board.grid[deRow][rookFromCol];
-        estado.board.grid[deRow][rookToCol] = torre;
-        estado.board.grid[deRow][rookFromCol] = null;
-        if (torre) torre.moveu = true;
+  if (movimentoData && movimentoData.isCastling) {
+    const { rookFromCol, rookToCol } = movimentoData;
+    // Movemos a Torre manualmente junto com o Rei
+    const torre = estado.board.grid[deRow][rookFromCol];
+    estado.board.grid[deRow][rookToCol] = torre;
+    estado.board.grid[deRow][rookFromCol] = null;
+    if (torre) torre.moveu = true;
+  }
+
+  const capturada = estado.board.moverPeca(deRow, deCol, paraRow, paraCol);
+
+  // Atualiza capturadas e placar se houve captura
+  if (capturada) {
+    if (capturada.color === 'black') {
+      estado.captPorBrancas.push(capturada.symbol);
+      estado.placar.white++;
+      animarPlacar('white');
+    } else {
+      estado.captPorPretas.push(capturada.symbol);
+      estado.placar.black++;
+      animarPlacar('black');
     }
+    atualizarPlacar(estado.placar);
+    atualizarCapturadas(estado.captPorBrancas, estado.captPorPretas);
+  }
 
-    const capturada = estado.board.moverPeca(deRow, deCol, paraRow, paraCol);
+  // Registra no histórico
+  const notacao = `${posicaoParaNotacao(deRow, deCol)}→${posicaoParaNotacao(paraRow, paraCol)}`;
+  adicionarHistorico(notacao, estado.turnoAtual, estado.numeroTurno);
 
-    // Atualiza capturadas e placar se houve captura
-    if (capturada) {
-        if (capturada.color === 'black') {
-            estado.captPorBrancas.push(capturada.symbol);
-            estado.placar.white++;
-            animarPlacar('white');
-        } else {
-            estado.captPorPretas.push(capturada.symbol);
-            estado.placar.black++;
-            animarPlacar('black');
-        }
-        atualizarPlacar(estado.placar);
-        atualizarCapturadas(estado.captPorBrancas, estado.captPorPretas);
-    }
+  // Troca o turno
+  const proximoTurno = estado.turnoAtual === 'white' ? 'black' : 'white';
+  if (estado.turnoAtual === 'black') estado.numeroTurno++;
 
-    //Registro no historico
-    const notacao = `${posicaoParaNotacao(deRow, deCol)}→${posicaoParaNotacao(paraRow, paraCol)}`;
-    adicionarHistorico(notacao, estado.turnoAtual, estado.numeroTurno);
+  estado.turnoAtual = proximoTurno;
+  estado.selecionado = null;
+  estado.movValidos = [];
 
-    //Troca o turno
-    const proximoTurno = estado.turnoAtual === 'white' ? 'black' : 'white';
-    if (estado.turnoAtual === 'black') estado.numeroTurno++;
+  atualizarTurno(proximoTurno);
 
-    estado.turnoAtual = proximoTurno;
-    estado.selecionado = null;
-    estado.movValidos = [];
+   // --- [NOVO] VERIFICAR XEQUE APÓS O MOVIMENTO ---
+  const estaEmXeque = estado.board.estaEmXeque(proximoTurno);
+  
+  if (estaEmXeque) {
+    setStatus(`XEQUE! Vez das ${proximoTurno === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
+  } else {
+    setStatus(`${proximoTurno === 'white' ? 'Brancas' : 'Pretas'} — sua vez`);
+  }
+  renderizarEstado();
 
-    atualizarTurno(proximoTurno);
-    setStatus(`${proximoTurno === 'white' ? 'Brancas' : 'Pretas'} - sua vez`);
-    renderizarEstado();
 }
 
 // ── RENDERIZAR ESTADO ─────────────────────────────────────
@@ -263,70 +268,70 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
 // Centraliza a chamada para não repetir em vários lugares.
 function renderizarEstado() {
     // Verifica se os elementos existem antes de pegar o .checked para evitar novos erros
-    const elMove = document.getElementById('configShowMoves');
-    const elRisk = document.getElementById('configRisk');
-    // Le os valores atuais dos switches na sidebar
-    const mostrarMovimentos = elMove ? elMove.checked : true;
-    const mostrarRisco = elRisk ? elRisk.checked : true;
+  const elMove = document.getElementById('configShowMoves');
+  const elRisk = document.getElementById('configRisk');
+  // Lê os valores atuais dos switches na sidebar
+  const mostrarMovimentos = elMove ? elMove.checked : true;
+  const mostrarRisco = elRisk ? elRisk.checked : true;
 
-    // Passa esses valores para o renderizador
-    renderizar(
-        ctx,
-        estado.board.grid,
-        estado.selecionado,
-        estado.movValidos,
-        mostrarMovimentos,
-        mostrarRisco
-    );
+  // Passa esses valores para o renderizador
+  renderizar(
+    ctx, 
+    estado.board.grid, 
+    estado.selecionado, 
+    estado.movValidos, 
+    mostrarMovimentos, 
+    mostrarRisco
+  );
 }
 
+// ── HELPERS DE UI ───────────────────────────────────────── 
 function atualizarModoDisplay() {
-    const el = document.getElementById('modeDisplay');
-    if (!el) return;
+  const el = document.getElementById('modeDisplay');
+  if (!el) return;
 
-    const { modo, dificuldade, corJogador } = estado.config;
-    if (modo === 'ai') {
-        const cor = corJogador === 'white' ? 'Brancas' : 'Pretas';
-        const diff = dificuldade === 'easy' ? 'Facil' : 'Dificil';
-        el.textContent = `Voce (${cor}) × IA (${diff})`;
-    } else {
-        el.textContent = 'Dois jogadores'
-    }
+  const { modo, dificuldade, corJogador } = estado.config;
+  if (modo === 'ai') {
+    const cor = corJogador === 'white' ? 'Brancas' : 'Pretas';
+    const diff = dificuldade === 'easy' ? 'Fácil' : 'Difícil';
+    el.textContent = `Você (${cor}) × IA (${diff})`;
+  } else {
+    el.textContent = 'Dois jogadores';
+  }
 }
 
 // ── AÇÕES GLOBAIS (chamadas pelo HTML) ────────────────────
 window.openModal = function () {
-    document.getElementById('app').classList.remove('visible');
-    document.querySelector('.board-wrapper').classList.remove('visible');
-    document.getElementById('sidebar').classList.remove('visible');
-    abrirModal();
+  document.getElementById('app').classList.remove('visible');
+  document.querySelector('.board-wrapper').classList.remove('visible');
+  document.getElementById('sidebar').classList.remove('visible');
+  abrirModal();
 };
 
+// TODO: implementar desfazer jogada
+// Precisará de um array de estados anteriores (histórico de boards)
 window.undoMove = function () {
-    setStatus('Desfazer ainda nao implementado', 'alerta');
-}
+  setStatus('Desfazer ainda não implementado', 'alerta');
+};
 
 // ── INICIALIZAÇÃO ─────────────────────────────────────────
 // Quando o módulo carrega, abrimos o modal imediatamente.
 // Nenhum jogo existe ainda — o usuário precisa configurar.
 abrirModal();
 
-//---LISTENERS DE CONFIGURACAO NA SIDEBAR---
+// --- LISTENERS DE CONFIGURAÇÃO NA SIDEBAR ---
 
-// 1. Logica de Coordenadas
+// 1. Lógica das Coordenadas
 document.getElementById('configCoords').addEventListener('change', (e) => {
-    const coords = document.querySelectorAll('.coord-row, .coord-col');
-    coords.forEach(el => el.computedStyleMap.opacity = e.target.checked ? '1' : '0');
+  const coords = document.querySelectorAll('.coord-row, .coord-col');
+  coords.forEach(el => el.style.opacity = e.target.checked ? '1' : '0');
 });
-
-// Logica de Mostrar / Esconder Movimentos (Verde)
-document.getElementById('configShowMoves').addEventListener('change', (e) => {
-    // Se o usuario desmarcar, limpamos os movimentos validos atuais
-    renderizarEstado();
+// 2. Lógica de Mostrar/Esconder Movimentos
+document.getElementById('configShowMoves').addEventListener('change', () => {
+  renderizarEstado(); // Redesenha com as novas permissões
 });
 
 // 3. Sincronizar o Risco
-document.getElementById('configRisk').addEventListener('change', (e) => {
-    // Quando mudar o risco, se tiver algo selecionado, redesenhamos
-        renderizarEstado();
+document.getElementById('configRisk').addEventListener('change', () => {
+  renderizarEstado(); // Redesenha com as novas permissões
 });

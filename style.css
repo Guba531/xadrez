@@ -27,7 +27,7 @@
   /* Tabuleiro */
   --board-light:  #f0d9b5;
   --board-dark:   #b58863;
-  --board-rim:    #7a5533;
+  --board-rim:    #482506;
 
   /* Destaque de jogadas */
   --highlight-selected: rgba(255, 185, 30,  0.72);
@@ -35,6 +35,7 @@
   --highlight-risk:     rgba(255, 59, 48, 0.5);
   --highlight-capture: rgba(0, 255, 60, 0.634);
   --highlight-alert: rgba(255, 149, 0, 0.6); /* Laranja vibrante */
+
 
   /* Acento principal */
   --accent:       #7c5c3a;
@@ -90,7 +91,6 @@ button {
   font-family: inherit;
   cursor: pointer;
 }
-
 
 /* ───────────────────────────────────────────────────────
    3. MODAL
@@ -783,27 +783,22 @@ button {
   font-weight: 500;
 }
 
-/* Sidebar em modo reduzido */
 .sidebar.collapsed-manual {
-  width: 70px;
-  min-width: 70px;
+  width: 64px;
+  min-width: 64px;
 }
 
-/* Esconde textos e elementos internos quando a barra está pequena */
 .sidebar.collapsed-manual .logo-text,
 .sidebar.collapsed-manual .nav-section,
-.sidebar.collapsed-manual .sidebar-footer button span:not(.logo-icon),
-.sidebar.collapsed-manual .btn-secondary {
-  display: none;
+.sidebar.collapsed-manual .sidebar-footer span,
+.sidebar.collapsed-manual .captured-label,
+.sidebar.collapsed-manual .info-card {
+  display: none; /* Esconde os textos quando colapsado */
 }
 
-/* Mantém apenas os ícones visíveis se necessário, ou apenas o logo */
 .sidebar.collapsed-manual .sidebar-logo {
   justify-content: center;
-}
-
-.sidebar.collapsed-manual .sidebar-footer {
-  align-items: center;
+  padding: 1rem 0;
 }
 
 /* ───────────────────────────────────────────────────────
@@ -871,4 +866,3 @@ button {
   background:    var(--accent-soft);
   border-radius: 3px;
 }
-

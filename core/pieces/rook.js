@@ -11,54 +11,59 @@
 // Se encontrar uma peça inimiga, ela pode capturá-la (e para ali).
 // ═══════════════════════════════════════════════════════
 
-import { casaValida, casaVazia, mesmaEquipe } from "../utils.js";
-import { Piece } from "./piece.js";
+import { Piece } from './piece.js';
+import { casaValida, casaVazia, mesmaEquipe } from '../utils.js';
 
 export class Rook extends Piece {
-    constructor(color) {
-        super(color);
-        this.type = 'rook';
-        this.symbol = color === 'white' ? '♖' : '♜';
-    }
+  constructor(color) {
+    super(color);
+    this.type = 'rook';
+    this.symbol = color === 'white' ? '♖' : '♜';
+  }
 
-    getValidMoves(row, col, grid) {
+  getValidMoves(row, col, grid) {
 
-        const movimentos = [];
+    const movimentos = [];
+    const dRow = -1; // Continua sendo "Para cima"
+    const dCol = 0;
 
-        // 1. Definir a direcao: "Para cima" (row diminui)
-        const dRow = -1;
-        const dCol = 0;
 
-        //Definimos as 4 direcoes cardinais como vetores [row, col]
-        // Cima: [-1, 0]
-        // Baixo: [1, 0]
-        // Direita: [0, 1]
-        // Esquerda: [0, -1]
-        const direcoes = [
-            [-1, 0], [1, 0], [0, 1], [0, -1]
-        ];
+    // Definimos as 4 direções cardinais como vetores [row, col]
+    // Cima:    [-1,  0]
+    // Baixo:   [ 1,  0]
+    // Direita: [ 0,  1]
+    // Esquerda:[ 0, -1]
+    const direcoes = [
+      [-1, 0], [1, 0], [0, 1], [0, -1]
+    ];
 
-        direcoes.forEach(([dr, dc]) => {
-            let nRow = row + dr;
-            let nCol = col + dc;
+    
+    // 2. Percorremos cada direção da lista
+    // dr = delta Row (variação da linha)
+    // dc = delta Col (variação da coluna)
+    direcoes.forEach(([dr, dc]) => {
+      let nRow = row + dr;
+      let nCol = col + dc;
 
-            //2. Verificar se a casa logo acima existe e esta vazia
-            while (casaValida(nRow, nCol)) {
-                if (casaVazia(grid, nRow, nCol)) {
-                    movimentos.push({ row: nRow, col: nCol });
-                } else {
-                    if (!mesmaEquipe(this, grid[nRow][nCol])) {
-                        movimentos.push({ row: nRow, col: nCol });
-                    }
-                    break; // Para o loop: a torre nao pula pecas!
-                }
-                nRow += dr; // Vai para a proxima casa
-                nCol += dc;
+      // "Enquanto a casa for válida..."
+      while (casaValida(nRow, nCol)) {
+        const pecaAlvo = grid[nRow][nCol]; 
 
-            }
-        });
+        if (casaVazia(grid, nRow, nCol)) {
+          movimentos.push({ row: nRow, col: nCol, isCapture: false });
+        } else {
+          // Se não é vazia, comparamos a equipe
+          if (!mesmaEquipe(this, pecaAlvo)) {
+            // É inimiga! Adicionamos como captura
+            movimentos.push({ row: nRow, col: nCol, isCapture: true });
+          }
+          break; // Bateu em uma peça (amiga ou inimiga), para o raio laser
+        }
+        nRow += dr; // Vai para a próxima casa
+        nCol += dc;
+      }
+    });
 
-        return movimentos;
-
-    }
+    return movimentos;
+  }
 }

@@ -22,29 +22,29 @@
 // ═══════════════════════════════════════════════════════
 
 export class Piece {
-    // ── constructor ────────────────────────────────────────
-    // Chamado quando criamos uma peça: new Pawn('white')
-    // Recebe a cor e armazena as propriedades básicas.
-    //
-    // 'type' e 'symbol' ficam vazios aqui — cada subclasse
-    // define os seus no próprio constructor antes de chamar
-    // super(), ou logo depois.
-    constructor(color) {
 
-        // 'white' ou 'black' - define de qual lado a peca pertence
-        this.color = color;
+  // ── constructor ────────────────────────────────────────
+  // Chamado quando criamos uma peça: new Pawn('white')
+  // Recebe a cor e armazena as propriedades básicas.
+  //
+  // 'type' e 'symbol' ficam vazios aqui — cada subclasse
+  // define os seus no próprio constructor antes de chamar
+  // super(), ou logo depois.
+  constructor(color) {
+    // 'white' ou 'black' — define de qual lado a peça pertence
+    this.color = color;
 
-        //Sera sobrestcrito pela subclasse: 'pawn', 'rook', etc.
-        this.type = '';
+    // Será sobrescrito pela subclasse: 'pawn', 'rook', etc.
+    this.type = '';
 
-        // Símbolo Unicode exibido no canvas: ♙ ♟ ♖ ♜ etc.
-        this.symbol = '';
+    // Símbolo Unicode exibido no canvas: ♙ ♟ ♖ ♜ etc.
+    this.symbol = '';
 
-        //Indica se a peca ja se moveu (util para roque e peao)
-        this.moveu = false;
-    }
-    
-    // ── getValidMoves ──────────────────────────────────────
+    // Indica se a peça já se moveu (útil para roque e peão)
+    this.moveu = false;
+  }
+
+  // ── getValidMoves ──────────────────────────────────────
   // Método que TODA peça deve ter — retorna array de casas
   // para onde essa peça pode se mover.
   //
@@ -65,7 +65,7 @@ export class Piece {
     // se chamarmos em uma peça sem implementação.
     return [];
   }
-
+  
   // ── toString ───────────────────────────────────────────
   // Representação em texto da peça — útil para debug.
   // console.log(peca) vai mostrar algo legível.
@@ -73,9 +73,12 @@ export class Piece {
     return `${this.color} ${this.type} (${this.symbol})`;
   }
 
-  getAttackedSquares(row, col, grid) {
-    // Por padrao, para a maioria das pecas
-    // as casas atacadas sao seus movimentos validos.
-    return this.getValidMoves(row, col, grid);
-  }
+  // ── verifica  o Ataque ───────────────────────────────────────────
+getAttackedSquares(row, col, grid) {
+  // Por padrão, para a maioria das peças, 
+  // as casas atacadas são seus movimentos válidos.
+  return this.getValidMoves(row, col, grid);
+}
+
+
 }

@@ -5,14 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Xadrez</title>
-
-  <!-- Fontes do Google Fonts importadas -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap"
-    rel="stylesheet">
-
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -20,12 +15,12 @@
 
   <!-- ═══════════════════════════════════════════════════
        MODAL DE CONFIGURAÇÃO DE PARTIDA
+       Aparece ao iniciar o jogo ou clicar em "Nova partida"
+       Controlado por: ui/modal.js
   ════════════════════════════════════════════════════ -->
-  <!-- Atributos de acessibilidade preenchidos -->
   <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
       <div class="modal-header">
-        <!-- Ícone de peça de xadrez adicionado -->
         <span class="modal-icon" aria-hidden="true">♟</span>
         <h1 id="modalTitle">Xadrez</h1>
         <p>Configure sua partida</p>
@@ -34,77 +29,64 @@
       <!-- Modo de jogo -->
       <div class="modal-section">
         <label class="section-label">Modo de jogo</label>
-
-        <!-- Resposta: role="group" indica para tecnologias assistivas que os botões dentro dessa div fazem parte de um mesmo grupo de opções. O aria-label dá um nome descritivo a esse grupo. -->
         <div class="option-group" id="modeGroup" role="group" aria-label="Modo de jogo">
-
           <button class="option-btn active" data-value="human" onclick="selectOption('modeGroup', this)"
             aria-pressed="true">
             <span class="option-icon" aria-hidden="true">👥</span>
             <span class="option-title">Dois jogadores</span>
             <span class="option-sub">Jogar na mesma tela</span>
           </button>
-
-          <!-- Botão "Contra IA" criado -->
-          <button class="option-btn" data-value="ai" onclick="selectOption('modeGroup', this)">
+          <button class="option-btn" data-value="ai" onclick="selectOption('modeGroup', this)" aria-pressed="false">
             <span class="option-icon" aria-hidden="true">🤖</span>
             <span class="option-title">Contra IA</span>
             <span class="option-sub">Desafie o computador</span>
           </button>
-
         </div>
       </div>
 
-      <!-- Dificuldade da IA -->
-      <!-- Resposta: Esta section começa com display:none porque o modo padrão selecionado é "Dois jogadores". Ela só deve aparecer quando o usuário selecionar "Contra IA". O evento onclick dos botões chamando selectOption() é o responsável por mudar isso. -->
+      <!-- Dificuldade da IA (visível apenas no modo IA) -->
       <div class="modal-section" id="difficultySection" style="display:none">
         <label class="section-label">Dificuldade</label>
         <div class="option-group" id="difficultyGroup" role="group" aria-label="Dificuldade da IA">
-
-          <!-- Botões de dificuldade criados -->
           <button class="option-btn active" data-value="easy" onclick="selectOption('difficultyGroup', this)"
             aria-pressed="true">
             <span class="option-icon" aria-hidden="true">🌱</span>
             <span class="option-title">Fácil</span>
+            <span class="option-sub">IA aleatória</span>
           </button>
-
           <button class="option-btn" data-value="hard" onclick="selectOption('difficultyGroup', this)"
             aria-pressed="false">
             <span class="option-icon" aria-hidden="true">🧠</span>
             <span class="option-title">Difícil</span>
+            <span class="option-sub">Algoritmo Minimax</span>
           </button>
-
         </div>
       </div>
 
-      <!-- Escolha da cor -->
+      <!-- Escolha da cor (visível apenas no modo IA) -->
       <div class="modal-section" id="colorSection" style="display:none">
         <label class="section-label">Suas peças</label>
-        <div class="option-group" id="colorGroup" role="group" aria-label="Escolha de Cor">
-
-          <!-- Botões de cor criados -->
+        <div class="option-group" id="colorGroup" role="group" aria-label="Cor das peças">
           <button class="option-btn active" data-value="white" onclick="selectOption('colorGroup', this)"
             aria-pressed="true">
             <span class="option-icon piece-white" aria-hidden="true">♔</span>
             <span class="option-title">Brancas</span>
+            <span class="option-sub">Você começa</span>
           </button>
-
-          <button class="option-btn" data-value="black" onclick="selectOption('colorGroup', this)" aria-pressed="true">
+          <button class="option-btn" data-value="black" onclick="selectOption('colorGroup', this)" aria-pressed="false">
             <span class="option-icon piece-black" aria-hidden="true">♚</span>
             <span class="option-title">Pretas</span>
+            <span class="option-sub">IA começa</span>
           </button>
-
         </div>
       </div>
 
       <!-- Animações -->
       <div class="modal-section">
         <label class="section-label">Opções</label>
-
-        <!-- Resposta: Um "toggle" switch CSS é criado usando um input type="checkbox" escondido. Usamos o pseudo-seletor :checked no CSS para estilizar o <span class="toggle-slider"> vizinho para que ele mude de cor e mova a bolinha para a direita simulando um interruptor físico. -->
         <div class="toggle-row">
           <span class="toggle-label">Animações de captura</span>
-          <label class="toggle" aria-label="Ativar animacoes de captura">
+          <label class="toggle" aria-label="Ativar animações de captura">
             <input type="checkbox" id="toggleAnimations" checked />
             <span class="toggle-slider"></span>
           </label>
@@ -112,40 +94,71 @@
 
         <div class="toggle-row">
           <span class="toggle-label">Destacar casas de risco</span>
-          <label class="toggle" aria-label="Ativar destaques de risco">
+          <label class="toggle" aria-label="Ativar destaque de risco">
             <input type="checkbox" id="toggleRisk" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Mostrar movimentos validos</span>
+          <label class="toggle" aria-label="Ativar destaque de movimentos validos">
+            <input type="checkbox" id="toggleMovs" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Mostrar coordenadas</span>
+          <label class="toggle" aria-label="Ativar coordenadas">
+            <input type="checkbox" id="toggleCoord" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Alertas de auxilio</span>
+          <label class="toggle" aria-label="Ativar alertas de auxilio">
+            <input type="checkbox" id="toggleAlerts" checked />
             <span class="toggle-slider"></span>
           </label>
         </div>
       </div>
 
-      <!-- Botão de iniciar partida (Movido para dentro do Modal) -->
       <button class="btn-start" onclick="startGame()">
         Iniciar partida
-        <span class="btn-arrow" aria-hidden="true">➔</span>
+        <span class="btn-arrow" aria-hidden="true">→</span>
       </button>
 
     </div>
   </div><!-- /modal-overlay -->
 
-
   <!-- ═══════════════════════════════════════════════════
-       APP — layout principal
+       APP — layout principal (sidebar + tabuleiro)
+       Oculto até startGame() ser chamado
   ════════════════════════════════════════════════════ -->
   <div class="app" id="app">
 
-    <!-- aria-label adicionado ao nav -->
+    <!-- ─────────────────────────────────────────────────
+         NAV LATERAL
+         Tag semântica <nav> para menus de navegação/controle
+         Cada <section> dentro da nav é uma área colapsável
+         Controlado por: ui/nav.js
+    ──────────────────────────────────────────────────── -->
     <nav class="sidebar" id="sidebar" aria-label="Painel do jogo">
 
+      <!-- Cabeçalho da sidebar -->
       <div class="sidebar-logo">
         <span class="logo-icon" aria-hidden="true">♟</span>
         <span class="logo-text">Xadrez</span>
-        <!-- Botão para recolher a sidebar corrigido -->
-        <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Recolher painel" title="Recolher painel" onclick="toggleSidebar()"> ‹ </button>
+        <!-- Botão hamburguer para telas pequenas (futuro) ver sobre onclick="toggleSidebar()" -->
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Recolher painel" title="Recolher painel"
+          onclick="toggleSidebar()">
+          ‹
+        </button>
       </div>
 
       <!-- ── SEÇÃO: Partida atual ── -->
-      <!-- Resposta: toggleSection() deve alternar uma classe (ex: 'collapsed') que muda a propriedade display, max-height ou grid-template-rows da .nav-section-body para fazer o efeito sanfona (acordeão). -->
       <section class="nav-section" id="sectionPartida">
         <button class="nav-section-header" onclick="toggleSection('sectionPartida')" aria-expanded="true">
           <span class="nav-section-icon" aria-hidden="true">⚔️</span>
@@ -164,16 +177,13 @@
 
           <div class="info-card">
             <div class="info-label">Modo</div>
-            <!-- id="modeDisplay" adicionado -->
             <div class="info-value" id="modeDisplay">—</div>
           </div>
 
-          <!-- Terceiro info-card criado para Situação -->
           <div class="info-card" id="statusCard" style="display:none">
             <div class="info-label">Situação</div>
-            <div class="info-value" id="gameStatus"></div>
+            <div class="info-value status-value" id="gameStatus">—</div>
           </div>
-
         </div>
       </section>
 
@@ -186,26 +196,23 @@
         </button>
         <div class="nav-section-body">
 
-          <!-- score-board montado -->
           <div class="score-board">
             <div class="score-player" id="scoreWhite">
               <div class="score-piece" aria-hidden="true">♔</div>
               <div class="score-info">
                 <div class="score-name">Brancas</div>
-                <!-- Classe corrigida para score-num -->
                 <div class="score-num" id="numWhite">0</div>
               </div>
             </div>
-            <div class="score-divider" aria-hidden="true">X</div>
-            <div id="scoreBlack" class="score-player">
-              <div class="score-piece" aria-hidden="true">♔</div>
+            <div class="score-divider" aria-hidden="true">×</div>
+            <div class="score-player" id="scoreBlack">
+              <div class="score-piece" aria-hidden="true">♚</div>
               <div class="score-info">
                 <div class="score-name">Pretas</div>
                 <div class="score-num" id="numBlack">0</div>
               </div>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -217,12 +224,11 @@
           <span class="nav-chevron" aria-hidden="true">▾</span>
         </button>
         <div class="nav-section-body">
-          <!-- Grupos de peças capturadas criados -->
-          <div class="captured-label">Brancas capturaram:</div>
-          <div class="captured" id="capturedByWhite" aria-label="Pecas capturadas pelas brancas"></div>
+          <div class="captured-label">Capturadas pelas brancas</div>
+          <div class="captured" id="capturedByWhite" aria-label="Peças capturadas pelas brancas"></div>
 
-          <div class="captured-label">Pretas capturaram:</div>
-          <div class="captured" id="capturedByBlack" aria-label="Pecas capturadas pelas pretas"></div>
+          <div class="captured-label">Capturadas pelas pretas</div>
+          <div class="captured" id="capturedByBlack" aria-label="Peças capturadas pelas pretas"></div>
         </div>
       </section>
 
@@ -234,30 +240,28 @@
           <span class="nav-chevron" aria-hidden="true">▾</span>
         </button>
         <div class="nav-section-body">
-          <!-- Div de histórico criada -->
           <div class="history" id="history" role="log" aria-live="polite">
-            <div class="history-empty">Nenhuma jogada ainda.</div>
+            <div class="history-empty">Nenhuma jogada ainda</div>
           </div>
         </div>
       </section>
 
       <!-- ── SEÇÃO: Configurações ── -->
-      <!-- Resposta: Esta seção começa fechada pois configurações não são o foco principal durante a partida. Reduz a poluição visual na interface para o jogador focar no histórico e no tabuleiro. -->
       <section class="nav-section" id="sectionConfig">
+        <!-- O Cabeçalho (O que você tinha apagado sem querer) -->
         <button class="nav-section-header" onclick="toggleSection('sectionConfig')" aria-expanded="false">
           <span class="nav-section-icon" aria-hidden="true">⚙️</span>
           <span>Configurações</span>
           <span class="nav-chevron" aria-hidden="true">▾</span>
         </button>
 
+        <!-- O Corpo (Onde ficam os botões) -->
         <div class="nav-section-body">
-
-          <!-- 3 toggles de configuração adicionados -->
 
           <!-- Controle de Animações -->
           <div class="toggle-row">
             <span class="toggle-label">Animações</span>
-            <label class="toggle" aria-label="Ativar animacoes">
+            <label class="toggle" aria-label="Ativar animações">
               <input type="checkbox" id="configAnimations" checked onchange="syncToggle(this, 'toggleAnimations')" />
               <span class="toggle-slider"></span>
             </label>
@@ -265,8 +269,8 @@
 
           <!-- Controle de Risco -->
           <div class="toggle-row">
-            <span class="toggle-label">Destaques de risco</span>
-            <label class="toggle" aria-label="Ativar destaques de risco">
+            <span class="toggle-label">Destaque de risco</span>
+            <label class="toggle" aria-label="Ativar destaque de risco">
               <input type="checkbox" id="configRisk" checked onchange="syncToggle(this, 'toggleRisk')" />
               <span class="toggle-slider"></span>
             </label>
@@ -274,43 +278,56 @@
 
           <!-- Controle de Movimentos Válidos -->
           <div class="toggle-row">
-            <span class="toggle-label">Mostrar movimentos válidos</span>
-            <label class="toggle" aria-label="Mostrar movimentos validos">
-              <input type="checkbox" id="configShowMoves" checked>
+            <span class="toggle-label">Mostrar movimentos</span>
+            <label class="toggle" aria-label="Mostrar movimentos válidos">
+              <input type="checkbox" id="configShowMoves" checked />
               <span class="toggle-slider"></span>
             </label>
           </div>
 
           <!-- Controle de Coordenadas -->
           <div class="toggle-row">
-            <span class="toggle-label">Coordenadas no tabuleiro</span>
+            <span class="toggle-label">Coordenadas (a-h, 1-8)</span>
             <label class="toggle" aria-label="Mostrar coordenadas">
-              <input type="checkbox" id="configCoords" checked>
+              <input type="checkbox" id="configCoords" checked />
               <span class="toggle-slider"></span>
             </label>
           </div>
 
-        </div>
+          <!-- Controle de Auxilio -->
+          <div class="toggle-row">
+            <span class="toggle-label">Alertas de auxilio (Coach)</span>
+            <label class="toggle" aria-label="Mostrar alertas de auxilio">
+              <input type="checkbox" id="toggleAlerts" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+        </div><!-- /nav-section-body -->
       </section>
 
+      <!-- Rodapé da sidebar -->
       <div class="sidebar-footer">
-        <!-- Botões de Nova partida e Desfazer jogada criados -->
-        <button class="btn-secondary" onclick="openModal()">＋ Nova partida</button>
-        <button class="btn-secondary" id="btnUndo" onclick="undoMove()" disabled>↩ Desfazer jogada</button>
+        <button class="btn-secondary" onclick="openModal()" id="btnOpen">
+          ＋ Nova partida
+        </button>
+        <button class="btn-secondary" onclick="undoMove()" id="btnUndo" disabled>
+          ↩ Desfazer jogada
+        </button>
       </div>
 
     </nav><!-- /sidebar -->
 
 
     <!-- ─────────────────────────────────────────────────
-         ÁREA DO JOGO
+         ÁREA DO JOGO — tabuleiro + coordenadas + status
     ──────────────────────────────────────────────────── -->
     <main class="game-area" id="gameArea">
       <div class="board-wrapper" id="boardWrapper">
 
         <div class="board-container">
 
-          <!-- Coordenadas superiores -->
+          <!-- Letras superiores (a–h) -->
           <div class="coord-row coord-top" aria-hidden="true">
             <div class="coord-cell"></div>
             <div class="coord-cell">a</div>
@@ -326,7 +343,7 @@
 
           <div class="board-row-wrap">
 
-            <!-- Números laterais esquerdos -->
+            <!-- Números esquerdos (8–1) -->
             <div class="coord-col" aria-hidden="true">
               <div class="coord-cell">8</div>
               <div class="coord-cell">7</div>
@@ -338,10 +355,11 @@
               <div class="coord-cell">1</div>
             </div>
 
-            <!-- Atributos de acessibilidade adicionados no canvas -->
-            <canvas id="board" width="480" height="480" role="application" aria-label="Tabuleiro de xadrez"></canvas>
+            <!-- CANVAS — tabuleiro principal -->
+            <canvas id="board" width="480" height="480" role="application" aria-label="Tabuleiro de xadrez">
+            </canvas>
 
-            <!-- Números laterais direitos -->
+            <!-- Números direitos (8–1) -->
             <div class="coord-col" aria-hidden="true">
               <div class="coord-cell">8</div>
               <div class="coord-cell">7</div>
@@ -352,43 +370,39 @@
               <div class="coord-cell">2</div>
               <div class="coord-cell">1</div>
             </div>
+
           </div>
 
+          <!-- Letras inferiores (a–h) -->
+          <div class="coord-row coord-bottom" aria-hidden="true">
+            <div class="coord-cell"></div>
+            <div class="coord-cell">a</div>
+            <div class="coord-cell">b</div>
+            <div class="coord-cell">c</div>
+            <div class="coord-cell">d</div>
+            <div class="coord-cell">e</div>
+            <div class="coord-cell">f</div>
+            <div class="coord-cell">g</div>
+            <div class="coord-cell">h</div>
+            <div class="coord-cell"></div>
+          </div>
+
+        </div><!-- /board-container -->
+
+        <!-- Mensagem de status abaixo do tabuleiro -->
+        <div class="board-status" id="boardStatus" role="status" aria-live="polite">
+          Selecione uma peça para começar
         </div>
 
-        <!-- Coordenadas inferiores -->
-        <div class="coord-row coord-bottom" aria-hidden="true">
-          <div class="coord-cell"></div>
-          <div class="coord-cell">a</div>
-          <div class="coord-cell">b</div>
-          <div class="coord-cell">c</div>
-          <div class="coord-cell">d</div>
-          <div class="coord-cell">e</div>
-          <div class="coord-cell">f</div>
-          <div class="coord-cell">g</div>
-          <div class="coord-cell">h</div>
-          <div class="coord-cell"></div>
-        </div>
-
-      </div><!-- /board-container -->
-
-      <!-- Mensagem de status abaixo do tabuleiro -->
-      <!-- Resposta: role="status" junto com aria-live="polite" faz com que leitores de tela notifiquem o usuário sempre que o conteúdo desta div mudar (ex: um xeque ou fim de jogo). O "polite" significa que ele irá aguardar a fala atual terminar antes de anunciar. -->
-      <div class="board-status" id="boardStatus" role="status" aria-live="polite">
-        Selecione uma peça para começar
-      </div>
-
-    </div><!-- /board-wrapper -->
+      </div><!-- /board-wrapper -->
     </main><!-- /game-area -->
 
   </div><!-- /app -->
 
-
   <!-- ─────────────────────────────────────────────────
        SCRIPTS
-       Resposta: A tag type="module" permite que o JavaScript use ES Modules nativos (import / export). 
-       O navegador cuidará de carregar automaticamente os outros arquivos (.js) que forem "importados"
-       por main.js como dependência, poupando a necessidade de incluirmos múltiplas tags <script>.
+       type="module" habilita import/export entre arquivos
+       Apenas main.js é carregado aqui — ele importa o resto
   ──────────────────────────────────────────────────── -->
   <script type="module" src="main.js"></script>
 

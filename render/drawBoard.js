@@ -29,17 +29,19 @@
 // Tamanho de cada casa em pixels
 // Constante no topo: se quisermos mudar o tamanho do
 // tabuleiro, alteramos só aqui e tudo se ajusta.
-
 const TAMANHO_CASA = 60;
 
+// Cores do tabuleiro — tom madeira claro e escuro
 const COR_CASA_CLARA = '#e2cba6';
-const COR_CASA_ESCURA = '#6f3d14'
+const COR_CASA_ESCURA = '#6f3d14';
 
-const COR_SELECIONADO = 'rgba(255, 185, 30, 0.72)';
-const COR_MOVIMENTO = 'rgba(90, 170, 90, 0.45)';
-const COR_PONTO_CENTRO = 'rgba(0, 0, 0, 0.18)';
-const COR_RISK = 'rgba(255, 59, 48, 0.4)';
-const COR_RISK_POINT = 'rgba(155, 0, 0, 0.5)';
+// Cores dos destaques de jogada
+const COR_SELECIONADO = 'rgba(255, 185, 30,  0.72)'; // amarelo
+const COR_MOVIMENTO = 'rgba(90,  170,  90,  0.45)'; // verde
+const COR_PONTO_CENTRO = 'rgba(0,   0,    0,   0.18)'; // ponto escuro
+const COR_RISK =  'rgba(255, 59, 48, 0.4)';
+const COR_RISK_POINT = 'rgba(150, 0, 0, 0.5)';
+
 
 // ── desenharTabuleiro ─────────────────────────────────────
 // Desenha as 64 casas do tabuleiro.
@@ -50,98 +52,100 @@ const COR_RISK_POINT = 'rgba(155, 0, 0, 0.5)';
 //
 // TODO: experimente trocar as cores e ver o resultado.
 //       Como você faria para ter um tema escuro?
-
 export function desenharTabuleiro(ctx) {
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            ctx.fillStyle = (r + c) % 2 === 0 ? COR_CASA_CLARA : COR_CASA_ESCURA;
-            ctx.fillRect(c * TAMANHO_CASA, r * TAMANHO_CASA, TAMANHO_CASA, TAMANHO_CASA);
-        }
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+
+      ctx.fillStyle = (row + col) % 2 === 0
+        ? COR_CASA_CLARA
+        : COR_CASA_ESCURA;
+
+      ctx.fillRect(
+        col * TAMANHO_CASA,   // posição X em pixels
+        row * TAMANHO_CASA,   // posição Y em pixels
+        TAMANHO_CASA,         // largura
+        TAMANHO_CASA          // altura
+      );
     }
+  }
 }
 
+// ── desenharDestaques ─────────────────────────────────────
+// Desenha os destaques visuais:
+//   - Casa selecionada (amarela)
+//   - Movimentos válidos (verde + ponto no centro)
+//
+// Recebe 'selecionado' como { row, col } ou null,
+// e 'movimentosValidos' como array de { row, col }.
 export function desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco) {
 
-    if (!selecionado) return;
+  // Se nenhuma peça está selecionada, não há nada para destacar
+  if (!selecionado) return;
 
-    ctx.fillStyle = COR_SELECIONADO;
-    ctx.fillRect(selecionado.col * TAMANHO_CASA,
-        selecionado.row * TAMANHO_CASA,
-        TAMANHO_CASA,
-        TAMANHO_CASA
+  // ── Destaque da casa selecionada ────────────────────
+  ctx.fillStyle = COR_SELECIONADO;
+  ctx.fillRect(
+    selecionado.col * TAMANHO_CASA,
+    selecionado.row * TAMANHO_CASA,
+    TAMANHO_CASA,
+    TAMANHO_CASA
+  );
 
-    );
+  // ── Destaque dos movimentos válidos ─────────────────
+// Dentro do drawBoard.js, no loop de movimentosValidos:
 
-    movimentosValidos.forEach(({m}) => {
-        const estiloCores = getComputedStyle(document.documentElement);
+ movimentosValidos.forEach((m) => {
+    const estiloCores = getComputedStyle(document.documentElement);
+    
+    // Pegamos as cores do CSS
+    const corVerdeNormal = estiloCores.getPropertyValue('--highlight-move');
+    const corSuaCaptura  = estiloCores.getPropertyValue('--highlight-capture');
+    const corRisco       = estiloCores.getPropertyValue('--highlight-risk');  // Vermelho
+    const corAlerta      = estiloCores.getPropertyValue('--highlight-alert'); // Laranja
 
-        // Pegamos as cores do CSS
-        const corVerdeNormal = estiloCores.getPropertyValue('--highlight-move');
-        const corRisco = estiloCores.getPropertyValue('--highlight-risk');
-        const corSuaCaptura = estiloCores.getPropertyValue('--highlight-capture');
-        const corAlerta = estiloCores.getPropertyValue('--highlight-alert');
+    let deveDesenhar = false;
+    let corParaPintar = "";
 
-        let deveDesenhar = false;
-        let corParaPintar = "";
+    // LÓGICA DE DECISÃO:
+    if (m.isRisk) {
+      // Se a casa for de RISCO, só pintamos se o switch de Risco estiver ON
+      if (mostrarRisco) {
+        deveDesenhar = true;
+        corParaPintar = m.isCapture ? corAlerta : corRisco; // Laranja se for comer/sacrificar, Vermelho se for só morte
+      }
+    } else {
+      // Se a casa for SEGURA, só pintamos se o switch de Movimentos estiver ON
+      if (mostrarMovimentos) {
+        deveDesenhar = true;
+        corParaPintar = m.isCapture ? corSuaCaptura : corVerdeNormal; // Verde claro ou Verde padrão
+      }
+    }
 
-        // LOGICA DE DECISAO:
-        if (m.isRisk) {
-        // Se a casa for de RISCO, so pintamos se o switch de Risco estiver ON
-        if (mostrarRisco) {
-            deveDesenhar = true;
-            corParaPintar = m.isCapture ? corAlerta : corRisco; // Laranja se for comer/sacrificar
-        }
-        } else {
-            if (mostrarMovimentos) {
-                deveDesenhar = true;
-                corParaPintar = m.isCapture ? corSuaCaptura : corVerdeNormal; // Verde claro ou Verde padrao
-            }
-       
-        }
+    // Se a lógica acima decidiu que deve desenhar, pintamos o quadrado e o ícone
+    if (deveDesenhar) {
+      ctx.fillStyle = corParaPintar;
+      ctx.fillRect(m.col * TAMANHO_CASA, m.row * TAMANHO_CASA, TAMANHO_CASA, TAMANHO_CASA);
 
-        // --- DESENHO DOS ICONES (ALVO OU PONTO) --- 
-        if (desenhar) {
-            ctx.fillStyle = corParaPintar;
-            ctx.fillRect(
-            m.col * TAMANHO_CASA,
-            m.row * TAMANHO_CASA,
-            TAMANHO_CASA,
-            TAMANHO_CASA
-        );
-        ctx.save();
-        if (m.isCapture) {
-            // Ponto no centro — indica visualmente onde pode ir
-            // ctx.save() / ctx.restore() garante que as configurações
-            // (fillStyle, globalAlpha etc) não vazem para o próximo desenho
-            ctx.strokeStyle = (m.isRisk) ? 'rgba(180, 80, 0, 0.9)' : 'rgba(0, 150, 0, 0.8)';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.arc(
-                m.col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
-                m.row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
-                22, // raio em pixels
-                0, //angulo inicial (0 = direita)
-                Math.PI * 2 // angulo final (2π = circulo completo)
-            );
-            ctx.stroke();
-        } else {
-            // Desenha o pontinho para casas vazias
-            ctx.fillStyle = m.isRisk ? 'rgba(150, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.15)';
-            ctx.beginPath();
-            ctx.arc(
-                m.col * TAMANHO_CASA + TAMANHO_CASA / 2, //centro x 
-                m.row * TAMANHO_CASA + TAMANHO_CASA / 2, //centro y
-                8, // raio em pixels
-                0, //angulo inicial (0 = direita)
-                Math.PI * 2
-            );
-            ctx.fill();
-        }
-        ctx.restore();
-        }
-    });
+      // Desenho do ícone (Círculo ou Ponto)
+      ctx.save();
+      if (m.isCapture) {
+        // Alvo para capturas
+        ctx.strokeStyle = m.isRisk ? 'rgba(100, 0, 0, 0.5)' : 'rgba(0, 100, 0, 0.5)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(m.col * TAMANHO_CASA + 30, m.row * TAMANHO_CASA + 30, 22, 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        // Pontinho para casas vazias
+        ctx.fillStyle = m.isRisk ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.15)';
+        ctx.beginPath();
+        ctx.arc(m.col * TAMANHO_CASA + 30, m.row * TAMANHO_CASA + 30, 8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  });
 }
-
 // ── desenharPecas ─────────────────────────────────────────
 // Percorre o grid e desenha o símbolo de cada peça
 // na posição correspondente do canvas.
@@ -155,38 +159,41 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMo
 // TODO: quando tivermos as animações (render/animations.js),
 //       esta função vai pular peças que estão sendo animadas.
 export function desenharPecas(ctx, grid) {
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
 
-    for (let row = 0; row < 8; row++) {
-        for (let col = 0; col < 8; col++) {
-            const peca = grid[row][col];
-            if (!peca) continue; // casa vazia = pula
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const peca = grid[row][col];
+      if (!peca) continue;  // casa vazia — pula
 
-            const x = col * TAMANHO_CASA + TAMANHO_CASA / 2;
-            const y = row * TAMANHO_CASA + TAMANHO_CASA / 2;
+      const x = col * TAMANHO_CASA + TAMANHO_CASA / 2;
+      const y = row * TAMANHO_CASA + TAMANHO_CASA / 2;
 
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-            ctx.shadowOffsetY = 2;
-            ctx.shadowBlur = 3;
+      // Sombra sutil para dar profundidade às peças
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowOffsetY = 2;
+      ctx.shadowBlur = 3;
 
-            ctx.font = `${TAMANHO_CASA * 0.72}px serif`;
-            ctx.fillStyle = peca.color === 'white' ? '#ffffff' : '#1a0d00';
-            ctx.fillText(peca.symbol, x, y + 1);
+      ctx.font = `${TAMANHO_CASA * 0.72}px serif`;
+      ctx.fillStyle = peca.color === 'white' ? '#ffffff' : '#1a0d00';
+      ctx.fillText(peca.symbol, x, y + 1);
 
-            if (peca.color === 'white') {
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-                ctx.strokeStyle = 'rgba(52, 36, 7, 0.5)';
-                ctx.lineWidth = 0.5;
-                ctx.strokeText(peca.symbol, x, y + 1);
-            }
+      // Contorno leve só para peças brancas — aumenta contraste
+      // em casas claras onde o símbolo poderia se perder
+      if (peca.color === 'white') {
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(52, 36, 7, 0.5)';
+        ctx.lineWidth = 0.5;
+        ctx.strokeText(peca.symbol, x, y + 1);
+      }
 
-            //Limpa a sombra para nao afetar os proximos desenhos
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-        }
+      // Limpa a sombra para não afetar os próximos desenhos
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
     }
+  }
 }
 
 // ── renderizar ────────────────────────────────────────────
@@ -202,7 +209,9 @@ export function desenharPecas(ctx, grid) {
 // TODO: futuramente teremos uma 4ª camada para animações
 //       que fica entre as peças e os destaques.
 export function renderizar(ctx, grid, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco) {
-    desenharTabuleiro(ctx);
-    desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco);
-    desenharPecas(ctx, grid);
+  desenharTabuleiro(ctx);
+  // Chamamos sempre o desenharDestaques, pois ele mesmo vai decidir 
+  // o que pintar com base nos dois switches (mostrarMovimentos e mostrarRisco)
+  desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco);
+  desenharPecas(ctx, grid);
 }
