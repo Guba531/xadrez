@@ -204,7 +204,7 @@ export function sincronizarConfiguracoesIniciais(config) {
   const elRisk = document.getElementById('configRisk');
   if (elRisk) elRisk.checked = config.risco; 
 
-  const elMovs = document.getElementById('configShowMovs');
+  const elMovs = document.getElementById('configShowMoves');
   if (elMovs) elMovs.checked = config.movimentos; 
 
   const elCoords = document.getElementById('configCoords');

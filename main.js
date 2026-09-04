@@ -152,20 +152,58 @@ canvas.addEventListener('click', (evento) => {
 function processarClique(row, col) {
   const peca = estado.board.grid[row][col];
 
-  // 1. TENTAR MOVER (Se já houver algo selecionado e o clique for em casa válida)
+  // --- [DIFERENÇA 1] BUSCAR O ESTADO DO SWITCH DE ALERTAS ---
+  // Criamos essa variável logo no início para usar em todo o clique
+  const elAlerts = document.getElementById('configAlerts');
+  const modoAlertas = elAlerts ? elAlerts.checked : true;
+
+  // 1. TENTAR MOVER
   const ehMovimentoValido = estado.movValidos.find(m => m.row === row && m.col === col);
 
   if (estado.selecionado && ehMovimentoValido) {
+    const pecaSendoMovida = estado.board.grid[estado.selecionado.row][estado.selecionado.col];
+
+    // --- [DIFERENÇA 2] LÓGICA DO REI (BLOQUEIO) ---
+    // Se for o REI indo para o risco, é proibido.
+    if (ehMovimentoValido.isRisk && pecaSendoMovida.type === 'king') {
+      if (modoAlertas) alert("❌ Movimento Ilegal: Rei em Xeque!");
+
+      // Mesmo sem alerta, limpamos a seleção porque o lance não pode ocorrer
+      estado.selecionado = null;
+      estado.movValidos = [];
+      renderizarEstado();
+      return;
+    }
+
+    //---[DIFERENCA 3] LOGICA DO SACRIFICIO (SILENCIOSA) ---
     // Verificamos o risco ANTES de executar o movimento
     if (ehMovimentoValido.isRisk) {
-      const confirmar = confirm("⚠️ Esta casa está sob ataque! Deseja mover mesmo assim?");
-      if (!confirmar) return; // Se cancelar, sai da função e não move
+      // Se modoAlertas for FALSE, ele ignora o IF e move direto
+      if (modoAlertas) {
+        const confirmar = confirm("⚠️ Esta casa está sob ataque! Deseja mover mesmo assim?");
+        if (!confirmar) return; // Se cancelar, sai da função e não move
+      }
     }
 
     executarMovimento(estado.selecionado.row, estado.selecionado.col, row, col);
     return; // Movimento feito, encerra aqui
   }
 
+  //--- [DIFERENCA 4] DIAGNOSTICO SO APARECE SE VOCE QUISER ---
+  if (estado.selecionado) {
+    const pecaSel = estado.board.grid[estado.selecionado.row][estado.selecionado.col];
+    // Adicionamos "&& modoAlertas" na condicao
+    if (pecaSel && pecaSel.type === 'king' && (col === 2 || col === 6) && modoAlertas) {
+      const motivo = explicarBloqueioRoque(estado.selecionado.row, estado.selecionado.col, col);
+      if (motivo) {
+        alert("⚠️ Roque Invalido\n" + motivo);
+        estado.selecionado = null;
+        estado.movValidos = [];
+        renderizarEstado();
+        return;
+      }
+    }
+  }
   // 2. SELECIONAR PEÇA (Se clicou em uma peça da sua cor)
   if (peca && peca.color === estado.turnoAtual) {
     estado.selecionado = { row, col };
@@ -179,8 +217,7 @@ function processarClique(row, col) {
 
     estado.movValidos = brutos.map(m => {
       return {
-        row: m.row,
-        col: m.col,
+        ...m,
         // O Board diz se a casa é perigosa
         isRisk: estado.board.estaSendoAtacada(m.row, m.col, peca.color),
         // O Main verifica se a casa de destino tem uma peça (Capture)
@@ -205,7 +242,6 @@ function processarClique(row, col) {
 // ── EXECUTAR MOVIMENTO ────────────────────────────────────
 // Aplica o movimento ao board, atualiza o estado e a UI.
 function executarMovimento(deRow, deCol, paraRow, paraCol) {
-  const pecaMovida = estado.board.grid[deRow][deCol];
 
   // --- [NOVO] LÓGICA DO ROQUE ---
   // Buscamos os dados extras do movimento que o jogador escolheu
@@ -251,9 +287,9 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
 
   atualizarTurno(proximoTurno);
 
-   // --- [NOVO] VERIFICAR XEQUE APÓS O MOVIMENTO ---
+  // --- [NOVO] VERIFICAR XEQUE APÓS O MOVIMENTO ---
   const estaEmXeque = estado.board.estaEmXeque(proximoTurno);
-  
+
   if (estaEmXeque) {
     setStatus(`XEQUE! Vez das ${proximoTurno === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
   } else {
@@ -267,7 +303,7 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
 // Desenha o tabuleiro com o estado atual.
 // Centraliza a chamada para não repetir em vários lugares.
 function renderizarEstado() {
-    // Verifica se os elementos existem antes de pegar o .checked para evitar novos erros
+  // Verifica se os elementos existem antes de pegar o .checked para evitar novos erros
   const elMove = document.getElementById('configShowMoves');
   const elRisk = document.getElementById('configRisk');
   // Lê os valores atuais dos switches na sidebar
@@ -276,11 +312,11 @@ function renderizarEstado() {
 
   // Passa esses valores para o renderizador
   renderizar(
-    ctx, 
-    estado.board.grid, 
-    estado.selecionado, 
-    estado.movValidos, 
-    mostrarMovimentos, 
+    ctx,
+    estado.board.grid,
+    estado.selecionado,
+    estado.movValidos,
+    mostrarMovimentos,
     mostrarRisco
   );
 }
@@ -335,3 +371,46 @@ document.getElementById('configShowMoves').addEventListener('change', () => {
 document.getElementById('configRisk').addEventListener('change', () => {
   renderizarEstado(); // Redesenha com as novas permissões
 });
+
+function explicarBloqueioRoque(reiRow, reiCol, destinoCol) {
+  const rei = estado.board.grid[reiRow][reiCol];
+  const cor = rei.color;
+  const ehRoquePequeno = (destinoCol === 6); //Coluna 6
+  const torreCol = ehRoquePequeno ? 7 : 0;
+  const torre = estado.board.grid = [reiRow][reiCol];
+
+  // 1. Verificar se o Rei moveu
+  if (rei.moveu) return "O Roque não e permitido porque o Rei ja se moveu nesta partida";
+
+  // 2. Verificar a Torre
+  if (!torre || torre.type !== 'rook' || torre.moveu) {
+    return `O Roque deste lado não e permitido porque a Torre na coluna ${ehRoquePequeno ? 'H' : 'A'} ja se moveu ou foi capturada.`;
+  }
+
+  // 3. Verificar se esta em Xeque agora
+  if (estado.board.estaEmXeque(cor)) {
+    return "Voce não pode fazer o Roque enquanto 0 seu Rei estiver em Xeque!";
+  }
+
+  // 4. Verificar se o caminho esta livre
+  const inicio = Math.min(reiCol, torreCol) + 1;
+  const fim = Math.max(reiCol, torreCol);
+  for (let c = inicio; c < fim; c++) {
+    if (estado.board.grid[reiRow][c] !== null) {
+      return "O Roque esta bloqueado por pecas no caminho";
+    }
+  }
+
+  // 5. Verificar se o Rei passara por uma casa atacada
+  // No roque pequeno, ele passa pela coluna 5. No grande, pela coluna 3.
+  const casaPassagem = ehRoquePequeno ? 5 : 3;
+  if (estado.board.estaSendoAtacada(reiRow, casaPassagem, cor)) {
+    return "O Roque não e permitido porque o Rei passaria por cima de uma casa sob ataque.";
+  }
+
+  if (estado.board.estaSendoAtacada(reiRow, destinoCol, cor)) {
+    return "O Roque não e permitido porque a casa de destino do rei esta sendo atacada.";
+  }
+
+  return null; // Se chegou aqui, nao ha erro obvio (não deveria acontecer se o clique falhou)
+}
