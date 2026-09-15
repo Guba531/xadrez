@@ -68,6 +68,7 @@ const estado = {
   captPorPretas: [],        // símbolos das peças capturadas pelas pretas
   numeroTurno: 1,            // contador de turnos para o histórico
   animacoesAtivas: true,
+  jogoFinalizado: false,
 };
 
 
@@ -150,6 +151,8 @@ canvas.addEventListener('click', (evento) => {
 //   - Se clicou em peça do turno atual → seleciona
 //   - Caso contrário → deseleciona
 function processarClique(row, col) {
+
+  if (estado.jogoFinalizado) return;
   const peca = estado.board.grid[row][col];
 
   // --- [DIFERENÇA 1] BUSCAR O ESTADO DO SWITCH DE ALERTAS ---
@@ -289,14 +292,24 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
 
   // --- [NOVO] VERIFICAR XEQUE APÓS O MOVIMENTO ---
   const estaEmXeque = estado.board.estaEmXeque(proximoTurno);
+  const temJogadas = estado.board.temMovimentosLegais(proximoTurno);
 
   if (estaEmXeque) {
-    setStatus(`XEQUE! Vez das ${proximoTurno === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
+    if (temJogadas) {
+      setStatus(`XEQUE! Vez das ${proximoTurno === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
+    } else {
+      setStatus(`XEQUE-MATE! Vitoria das ${estado.turnoAtual === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
+      estado.jogoFinalizado = true; // Bloquear o jogo aqui
+    }
   } else {
-    setStatus(`${proximoTurno === 'white' ? 'Brancas' : 'Pretas'} — sua vez`);
+    // [EXTRA] Empate por Afogamento (Stalmate)
+    if (!temJogadas) {
+      setStatus("EMPATE! Afogamento (Stalmate)", 'alerta');
+    } else {
+      setStatus(`${proximoTurno === 'white' ? 'Brancas' : 'Pretas'} - sua vez`);
+    }
   }
   renderizarEstado();
-
 }
 
 // ── RENDERIZAR ESTADO ─────────────────────────────────────

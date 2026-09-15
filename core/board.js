@@ -232,4 +232,33 @@ export class Board {
     // O Rei está em xeque se a casa dele "está sendo atacada"
     return this.estaSendoAtacada(reiPos.row, reiPos.col, cor);
   }
+
+  // ── temMovimentosLegais ────────────────────────────────
+  // Verifica se o jogador da cor especificada ainda tem 
+  // alguma jogada possível que não o deixe em Xeque.
+  temMovimentosLegais(cor) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const peca = this.grid[r][c];
+
+        // Verifica apenas pecas da cor do turno
+        if (peca && peca.color === cor) {
+          const movimentos = peca.getValidMoves(r, c, this.grid);
+
+          for (const move of movimentos) {
+            // Simulamos o movimento em um tabuleiro clonado
+            const boardSimulado = this.clonar();
+            boardSimulado.moverPeca(r, c, move.row, move.col);
+
+            // Se apos o movimento o Rei NAO estiver em xeque,
+            // encontramos um movimento legal!
+            if (!boardSimulado.estaEmXeque(cor)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
 }

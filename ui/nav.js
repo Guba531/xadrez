@@ -198,7 +198,7 @@ window.toggleSidebar = function() {
 // reflitam o que foi escolhido no modal.
 export function sincronizarConfiguracoesIniciais(config) {
   const elAnim = document.getElementById('configAnimations');
-  if (elAnim) toggleAnim.checked = config.animacoes;
+  if (elAnim) elAnim.checked = config.animacoes;
 
   // O risco geralmente começa ligado por padrão se você configurou assim
   const elRisk = document.getElementById('configRisk');
