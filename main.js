@@ -35,7 +35,7 @@
 // encontra estes imports.
 
 import { Board } from './core/board.js';
-import { renderizar } from './render/drawBoard.js';
+import { renderizar, desenharAvisoXeque } from './render/drawBoard.js';
 import { abrirModal, fecharModal, lerConfiguracoes } from './ui/modal.js';
 import {
   mostrarNav,
@@ -211,22 +211,26 @@ function processarClique(row, col) {
   if (peca && peca.color === estado.turnoAtual) {
     estado.selecionado = { row, col };
 
-    // Buscamos o valor do Switch na Sidebar/Configurações
     const checkboxRisco = document.getElementById('configRisk');
     const mostrarRisco = checkboxRisco ? checkboxRisco.checked : false;
-
-    // Pegamos os movimentos brutos e calculamos o risco para cada um
     const brutos = estado.board.getValidMoves(row, col);
 
-    estado.movValidos = brutos.map(m => {
-      return {
-        ...m,
-        // O Board diz se a casa é perigosa
-        isRisk: estado.board.estaSendoAtacada(m.row, m.col, peca.color),
-        // O Main verifica se a casa de destino tem uma peça (Capture)
-        isCapture: estado.board.grid[m.row][m.col] !== null
-      };
-    });
+    estado.movValidos = brutos.filter(m => {
+      const boardSimulado = estado.board.clonar();
+      boardSimulado.moverPeca(row, col, m.row, m.col);
+
+      if (boardSimulado.estaEmXeque(estado.turnoAtual)) return false;
+      if (m.isCastling && m.isRisk) return false;
+
+      return true;
+    }).map(m => ({
+      ...m,
+      // O Board diz se a casa é perigosa
+      isRisk: estado.board.estaSendoAtacada(m.row, m.col, peca.color),
+      // O Main verifica se a casa de destino tem uma peça (Capture)
+      isCapture: estado.board.grid[m.row][m.col] !== null
+    }));
+
 
     const qtd = estado.movValidos.length;
     setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
@@ -283,18 +287,21 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
   // Troca o turno
   const proximoTurno = estado.turnoAtual === 'white' ? 'black' : 'white';
   if (estado.turnoAtual === 'black') estado.numeroTurno++;
-
   estado.turnoAtual = proximoTurno;
   estado.selecionado = null;
   estado.movValidos = [];
 
+  const estaEmXeque = estado.board.estaEmXeque(proximoTurno);
+  console.log("O Rei branco esta em xeque?", estado.board.estaEmXeque('white'))
+  console.log("O Rei preto esta em xeque?", estado.board.estaEmXeque('black'));
+  const temJogadas = estado.board.temMovimentosLegais(proximoTurno);
+
   atualizarTurno(proximoTurno);
 
   // --- [NOVO] VERIFICAR XEQUE APÓS O MOVIMENTO ---
-  const estaEmXeque = estado.board.estaEmXeque(proximoTurno);
-  const temJogadas = estado.board.temMovimentosLegais(proximoTurno);
 
   if (estaEmXeque) {
+    estado.avisoXequePendente = true;
     if (temJogadas) {
       setStatus(`XEQUE! Vez das ${proximoTurno === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
     } else {
@@ -307,6 +314,7 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
       setStatus("EMPATE! Afogamento (Stalmate)", 'alerta');
     } else {
       setStatus(`${proximoTurno === 'white' ? 'Brancas' : 'Pretas'} - sua vez`);
+      estado.jogoFinalizado = false;
     }
   }
   renderizarEstado();
@@ -315,6 +323,11 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
 // ── RENDERIZAR ESTADO ─────────────────────────────────────
 // Desenha o tabuleiro com o estado atual.
 // Centraliza a chamada para não repetir em vários lugares.
+
+let loopAnimacaoAtivo = false;
+let piscadasRestantes = 0;
+let visivelAnterior = null;
+
 function renderizarEstado() {
   // Verifica se os elementos existem antes de pegar o .checked para evitar novos erros
   const elMove = document.getElementById('configShowMoves');
@@ -332,6 +345,18 @@ function renderizarEstado() {
     mostrarMovimentos,
     mostrarRisco
   );
+
+  //Verifica se o turno atual esta em xeque e desenha o aviso
+  const estaEmXeque = estado.board.estaEmXeque(estado.turnoAtual);
+
+  if (estaEmXeque && !loopAnimacaoAtivo && estado.avisoXequePendente) {
+    loopAnimacaoAtivo = true;
+    estado.bloqueado = true;
+    piscadasRestantes = 3;
+    visivelAnterior = null;
+    estado.avisoXequePendente = false;
+    requestAnimationFrame(animarXeque);
+  }
 }
 
 // ── HELPERS DE UI ───────────────────────────────────────── 

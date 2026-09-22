@@ -215,3 +215,17 @@ export function renderizar(ctx, grid, selecionado, movimentosValidos, mostrarMov
   desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco);
   desenharPecas(ctx, grid);
 }
+
+export function desenharAvisoXeque(ctx, emXeque) {
+  if (!emXeque) return;
+  //Animacao simples de piscar baseada no tempo do sistema
+  const blink = Math.floor(Date.now() / 300) % 2 === 0;
+  if (!blink) return;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+  ctx.font = 'bold 40px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText("XEQUE!!!", 240, 250);
+  ctx.restore();
+}
