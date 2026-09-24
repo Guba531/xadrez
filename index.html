@@ -280,7 +280,7 @@
           <div class="toggle-row">
             <span class="toggle-label">Mostrar movimentos</span>
             <label class="toggle" aria-label="Mostrar movimentos válidos">
-              <input type="checkbox" id="configShowMoves" checked />
+              <input type="checkbox" id="configShowMoves" checked onchange="syncToggle(this, 'toggleShowMoves')" />
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -289,7 +289,7 @@
           <div class="toggle-row">
             <span class="toggle-label">Coordenadas (a-h, 1-8)</span>
             <label class="toggle" aria-label="Mostrar coordenadas">
-              <input type="checkbox" id="configCoords" checked />
+              <input type="checkbox" id="configCoords" checked onchange="syncToggle(this, 'toggleCoords')" />
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -298,7 +298,7 @@
           <div class="toggle-row">
             <span class="toggle-label">Alertas de auxilio (Coach)</span>
             <label class="toggle" aria-label="Mostrar alertas de auxilio">
-              <input type="checkbox" id="toggleAlerts" checked />
+              <input type="checkbox" id="toggleAlerts" checked onchange="syncToggle(this, 'toggleAlerts')" />
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -398,6 +398,21 @@
     </main><!-- /game-area -->
 
   </div><!-- /app -->
+
+  <!-- OVERLAY DE XEQUE-MATE -->
+  <div id="xequeMateOverlay" class="xeque-mate-overlay" aria-hidden="true">
+    <div class="xeque-mate-conteudo">
+      <img id="imagemXequeMate" src="assets/xequemate.webp" alt="Xeque-mate" />
+
+      <div id="textoXequeMate" class="texto-xeque-mate">
+        XEQUE-MATE
+      </div>
+
+      <div id="subtextoXequeMate" class="subtexto-xeque-mate">
+        A partida terminou.
+      </div>
+    </div>
+  </div>
 
   <!-- ─────────────────────────────────────────────────
        SCRIPTS

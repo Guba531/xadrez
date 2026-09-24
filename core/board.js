@@ -199,7 +199,7 @@ export class Board {
       for (let c = 0; c < 8; c++) {
         const pecaInimiga = this.grid[r][c];
 
-        if (pecaInimiga && pecaInimiga.color !== corDaPeca && pecaInimiga.getAttackedSquares === 'function') {
+        if (pecaInimiga && pecaInimiga.color !== corDaPeca && typeof pecaInimiga.getAttackedSquares === 'function') {
           // MUDANÇA AQUI: usamos getAttackedSquares
           const casasAmeacadas = pecaInimiga.getAttackedSquares(r, c, this.grid);
 

@@ -82,9 +82,15 @@ export function mesmaEquipe(pecaA, pecaB) {
 //       para um array 2D?
 export function clonarTabuleiro(grid) {
   return grid.map(row =>
-    row.map(peca =>
-      peca ? { ...peca } : null
-    )
+    row.map(peca => {
+      if (!peca) return null;
+      //Cria um novo objeo com o MESMO prototipo da peca original
+      //Preserva os metodos da classe: getValidMoves, getAttackedSquares, etc.
+      return Object.assign(
+        Object.create(Object.getPrototypeOf(peca)),
+        peca
+      );
+    })
   );
 }
 

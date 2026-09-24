@@ -46,6 +46,7 @@ import {
   adicionarHistorico,
   setStatus
 } from './ui/nav.js';
+import { mostrarXequeMate } from './ui/xequeMate.js';
 import { posicaoParaNotacao } from './core/utils.js';
 import { sincronizarConfiguracoesIniciais } from './ui/nav.js';
 
@@ -231,9 +232,19 @@ function processarClique(row, col) {
       isCapture: estado.board.grid[m.row][m.col] !== null
     }));
 
-
     const qtd = estado.movValidos.length;
-    setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
+    // --- [NOVO] AVISO DE PEÇA PRESA (PINNED) ---
+    // Se a peça tinha movimentos possíveis "no papel" (brutos.length > 0),
+    // mas todos foram filtrados pela simulação de xeque, ela está presa
+    // protegendo o Rei — e o jogador merece saber o motivo.
+    if (qtd === 0 && brutos.length > 0) {
+      if (modoAlertas) {
+        alert(`⚠️ ${peca.symbol} esta presa!\nMover essa peca deixaria seu Rei em xeque.`)
+      }
+      setStatus("Peca presa - protegendo o Rei", 'alerta');
+    } else {
+      setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
+    }
 
     renderizarEstado();
     return; // Seleção feita, encerra aqui
@@ -304,14 +315,18 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
     estado.avisoXequePendente = true;
     if (temJogadas) {
       setStatus(`XEQUE! Vez das ${proximoTurno === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
+      estado.jogoFinalizado = false;
     } else {
+      const vencedor = proximoTurno === 'white' ? 'Pretas' : 'Brancas';
       setStatus(`XEQUE-MATE! Vitoria das ${estado.turnoAtual === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
       estado.jogoFinalizado = true; // Bloquear o jogo aqui
+      mostrarXequeMate();
     }
   } else {
     // [EXTRA] Empate por Afogamento (Stalmate)
     if (!temJogadas) {
       setStatus("EMPATE! Afogamento (Stalmate)", 'alerta');
+      estado.jogoFinalizado = true;
     } else {
       setStatus(`${proximoTurno === 'white' ? 'Brancas' : 'Pretas'} - sua vez`);
       estado.jogoFinalizado = false;
