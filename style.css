@@ -727,6 +727,7 @@ button {
    8. ÁREA DO JOGO / CANVAS
 ──────────────────────────────────────────────────────── */
 .game-area {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
@@ -989,7 +990,7 @@ button {
    ========================================================= */
 
 .xeque-mate-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 9999;
 
@@ -1057,38 +1058,14 @@ button {
   animation: impactoXequeMate 0.7s ease-out;
 }
 
-/* Texto */
-.texto-xeque-mate {
-  margin-top: -20px;
-
-  font-family: "New Rocker", system-ui, sans-serif;
-
-  font-size: clamp(42px, 8vw, 86px);
-  font-weight: 900;
-
-  letter-spacing: 4px;
-
-  color: #fff;
-
-  text-shadow:
-    3px 3px 0 #000,
-    0 0 10px rgba(255, 0, 0, 0.9),
-    0 0 30px rgba(255, 0, 0, 0.7);
-}
-
 /* Texto menor */
 .subtexto-xeque-mate {
   margin-top: 8px;
-
   font-family: system-ui, sans-serif;
-
   font-size: 18px;
   font-weight: 600;
-
   color: #fff;
-
   opacity: 0.9;
-
   text-shadow: 2px 2px 4px #000;
 }
 

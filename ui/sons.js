@@ -17,15 +17,6 @@ audio.play().catch((erro) => {
 });
 Resumindo: use audio.play() para iniciar o som e tratar erros de permissão do navegador, pois o .onplay() serve apenas para monitorar o estado do áudio, e não para executá-lo.*/
 
-function tocarSomXequeMate() {
-    const audio = document.getElementById('somXequeMate');
-
-    if (!audio) return;
-
-    audio.currentTime = 0;
-    audio.onplay().catch(() => {});
-}
-
 function tocarSomClique() {
     const somClique = new Audio('assets/clique.mp3');
     somClique.play();

@@ -125,6 +125,7 @@ window.startGame = function () {
 // Converte coordenadas do clique (pixels) para posição
 // no grid (row, col) e decide o que fazer.
 canvas.addEventListener('click', (evento) => {
+  if (estado.bloqueado) return;
   // getBoundingClientRect retorna tamanho e posição do canvas
   // na tela. Precisamos disso porque o canvas pode estar
   // redimensionado por CSS — os pixels CSS e do canvas podem
