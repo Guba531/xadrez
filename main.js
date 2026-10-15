@@ -49,6 +49,7 @@ import {
 import { mostrarXequeMate } from './ui/xequeMate.js';
 import { posicaoParaNotacao } from './core/utils.js';
 import { sincronizarConfiguracoesIniciais } from './ui/nav.js';
+import { animarMovimento } from './animations/animations.js';
 
 
 // ── ESTADO DO JOGO ────────────────────────────────────────
@@ -70,6 +71,7 @@ const estado = {
   numeroTurno: 1,            // contador de turnos para o histórico
   animacoesAtivas: true,
   jogoFinalizado: false,
+  animarMovimento: null,
 };
 
 
@@ -275,6 +277,7 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
     if (torre) torre.moveu = true;
   }
 
+  const pecaMovida = estado.board.grid[deRow][deCol];
   const capturada = estado.board.moverPeca(deRow, deCol, paraRow, paraCol);
 
   // Atualiza capturadas e placar se houve captura
@@ -333,7 +336,38 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
       estado.jogoFinalizado = false;
     }
   }
-  renderizarEstado();
+  if (estado.animacoesAtivas) {
+
+    estado.animarMovimento = {
+      peca: pecaMovida,
+      row: deRow,
+      col: deCol,
+      paraRow,
+      paraCol
+    };
+
+    animarMovimento(
+      pecaMovida,
+      deRow,
+      deCol,
+      paraRow,
+      paraCol,
+      (peca, row, col) => {
+
+        estado.animarMovimento = {
+          peca,
+          row,
+          col,
+          paraRow,
+          paraCol
+        };
+
+        renderizarEstado();
+      }
+    );
+  } else {
+     renderizarEstado();
+  }
 }
 
 // ── RENDERIZAR ESTADO ─────────────────────────────────────

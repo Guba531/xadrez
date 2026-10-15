@@ -158,7 +158,7 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMo
 //
 // TODO: quando tivermos as animações (render/animations.js),
 //       esta função vai pular peças que estão sendo animadas.
-export function desenharPecas(ctx, grid) {
+export function desenharPecas(ctx, grid, pecaAnimada = null) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
@@ -166,6 +166,18 @@ export function desenharPecas(ctx, grid) {
     for (let col = 0; col < 8; col++) {
       const peca = grid[row][col];
       if (!peca) continue;  // casa vazia — pula
+
+      // Durante uma animação, não desenhamos a peça
+      // na posição final. Ela será desenhada separadamente
+      // na posição intermediária.
+      if (
+        pecaAnimada &&
+        peca === pecaAnimada.peca &&
+        row === pecaAnimada.paraRow &&
+        col === pecaAnimada.paraCol
+      ) {
+        continue;
+      }
 
       const x = col * TAMANHO_CASA + TAMANHO_CASA / 2;
       const y = row * TAMANHO_CASA + TAMANHO_CASA / 2;
@@ -208,12 +220,12 @@ export function desenharPecas(ctx, grid) {
 //
 // TODO: futuramente teremos uma 4ª camada para animações
 //       que fica entre as peças e os destaques.
-export function renderizar(ctx, grid, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco) {
+export function renderizar(ctx, grid, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco, pecaAnimada = null) {
   desenharTabuleiro(ctx);
   // Chamamos sempre o desenharDestaques, pois ele mesmo vai decidir 
   // o que pintar com base nos dois switches (mostrarMovimentos e mostrarRisco)
   desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco);
-  desenharPecas(ctx, grid);
+  desenharPecas(ctx, grid, pecaAnimada);
 }
 
 export function desenharAvisoXeque(ctx, emXeque) {
