@@ -206,7 +206,38 @@ export function desenharPecas(ctx, grid, pecaAnimada = null) {
       ctx.shadowBlur = 0;
     }
   }
+
+  if (pecaAnimada) {
+
+    const { peca, row, col } = pecaAnimada;
+    const x = col * TAMANHO_CASA + TAMANHO_CASA / 2;
+    const y = row * TAMANHO_CASA + TAMANHO_CASA / 2;
+
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 3;
+
+    ctx.font = `${TAMANHO_CASA * 0.72}px serif`;
+    ctx.fillStyle = peca.color === 'white'
+      ? '#ffffff'
+      : '#1a0d00'
+
+      ctx.fillText(peca.symbol, x, y + 1);
+
+      if (peca.color === 'white') {
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(52, 36, 7, 0.5)';
+        ctx.lineWidth = 0.5;
+        ctx.strokeText(peca.symbol, x, y + 1);
+      }
+
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+  }
 }
+
+//A peça continua pertencendo ao tabuleiro. Só a representação visual dela está temporariamente em outra posição.
 
 // ── renderizar ────────────────────────────────────────────
 // Função principal que chama tudo na ordem correta.

@@ -17,27 +17,27 @@ audio.play().catch((erro) => {
 });
 Resumindo: use audio.play() para iniciar o som e tratar erros de permissão do navegador, pois o .onplay() serve apenas para monitorar o estado do áudio, e não para executá-lo.*/
 
-function tocarSomClique() {
+export function tocarSomClique() {
     const somClique = new Audio('assets/clique.mp3');
     somClique.play();
 }
 
-function tocarSomComer() {
+export function tocarSomComer() {
     const somComer = new Audio('assets/comer.mp3');
     somComer.play();
 }
 
-function tocarSomDeslizar() {
+export function tocarSomDeslizar() {
     const somDeslizar = new Audio('assets/deslizar.mp3');
     somDeslizar.play();
 }
 
-function tocarSomPerigo() {
+export function tocarSomPerigo() {
     const somPerigo = new Audio('assets/perigo.mp3');
     somPerigo.play();
 }
 
-function tocarSomRoque() {
+export function tocarSomRoque() {
     const somRoque = new Audio('assets/roque.mp3');
     somRoque.play();
 }

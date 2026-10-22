@@ -50,7 +50,7 @@ import { mostrarXequeMate } from './ui/xequeMate.js';
 import { posicaoParaNotacao } from './core/utils.js';
 import { sincronizarConfiguracoesIniciais } from './ui/nav.js';
 import { animarMovimento } from './animations/animations.js';
-
+import { tocarSomClique } from './ui/sons.js';
 
 // ── ESTADO DO JOGO ────────────────────────────────────────
 // Todas as variáveis que descrevem a situação atual da partida.
@@ -192,6 +192,8 @@ function processarClique(row, col) {
       }
     }
 
+    tocarSomClique();
+
     executarMovimento(estado.selecionado.row, estado.selecionado.col, row, col);
     return; // Movimento feito, encerra aqui
   }
@@ -226,6 +228,8 @@ function processarClique(row, col) {
       if (boardSimulado.estaEmXeque(estado.turnoAtual)) return false;
       if (m.isCastling && m.isRisk) return false;
 
+      
+
       return true;
     }).map(m => ({
       ...m,
@@ -249,6 +253,8 @@ function processarClique(row, col) {
       setStatus(qtd > 0 ? `${peca.symbol} selecionado` : "Sem movimentos");
     }
 
+    tocarSomClique()
+    
     renderizarEstado();
     return; // Seleção feita, encerra aqui
   }
@@ -363,12 +369,25 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
         };
 
         renderizarEstado();
+      },
+      // 2. Callback executado quando a animacao termina.
+      () => {
+        estado.animarMovimento = null;
+        renderizarEstado();
       }
     );
+
   } else {
+    // Se as animações estiverem desativadas,
+    // desenha o tabuleiro normalmente.
+    estado.animarMovimento = null;
      renderizarEstado();
   }
+  //tocarSomDeslizar()
 }
+
+//Primeiro callback: atualiza a posição visual da peça enquanto ela se move.
+//Segundo callback: limpa o estado da animação quando ela chega ao destino e redesenha o tabuleiro normalmente.
 
 // ── RENDERIZAR ESTADO ─────────────────────────────────────
 // Desenha o tabuleiro com o estado atual.
@@ -393,7 +412,8 @@ function renderizarEstado() {
     estado.selecionado,
     estado.movValidos,
     mostrarMovimentos,
-    mostrarRisco
+    mostrarRisco,
+    estado.animarMovimento
   );
 
   //Verifica se o turno atual esta em xeque e desenha o aviso

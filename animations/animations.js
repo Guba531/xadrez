@@ -4,10 +4,11 @@ export function animarMovimento(
     deCol,
     paraRow,
     paraCol,
-    desenhar
+    desenhar,
+    aoTerminar
 ) {
 
-    const duracao = 300;
+    const duracao = 600;
     const inicio = performance.now();
 
     function animar(agora) {
@@ -16,8 +17,8 @@ export function animarMovimento(
         const progresso = Math.min((agora - inicio) / duracao, 1);
 
         // Calcula a posicao intermediaria da peca
-        const row = deRow + (paraRow) * progresso;
-        const col = deCol + (paraCol) * progresso;
+        const row = deRow + (paraRow - deRow) * progresso;
+        const col = deCol + (paraCol - deCol) * progresso;
 
         // Pede para o sistema desenhar essa posicao
         desenhar(peca, row, col);
@@ -25,6 +26,8 @@ export function animarMovimento(
         // Ainda nao terminou?
         if (progresso < 1) {
             requestAnimationFrame(animar);
+        } else {
+            aoTerminar?.();
         }
     }
 
