@@ -52,6 +52,7 @@ import { sincronizarConfiguracoesIniciais } from './ui/nav.js';
 import { animarMovimento } from './animations/animations.js';
 import { tocarSomClique } from './ui/sons.js';
 
+
 // ── ESTADO DO JOGO ────────────────────────────────────────
 // Todas as variáveis que descrevem a situação atual da partida.
 // Ficam aqui no main.js porque pertencem ao jogo como um todo,
@@ -254,7 +255,7 @@ function processarClique(row, col) {
     }
 
     tocarSomClique()
-    
+
     renderizarEstado();
     return; // Seleção feita, encerra aqui
   }
