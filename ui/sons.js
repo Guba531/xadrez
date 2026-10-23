@@ -30,11 +30,24 @@ export function tocarSomComer() {
 export function tocarSomDeslizar() {
     const somDeslizar = new Audio('assets/deslizar.mp3');
     somDeslizar.play();
+
+    setTimeout(() => {
+        somDeslizar.pause();
+        somDeslizar.currentTime = 0;
+    }, 2000);
 }
 
-export function tocarSomPerigo() {
+export async function tocarSomPerigo() {
     const somPerigo = new Audio('assets/perigo.mp3');
-    somPerigo.play();
+
+    try {
+        await somPerigo.play();
+        console.log('Som de perigo iniciado!');
+    } catch (erro) {
+        console.error('Não foi possível iniciar o som:', erro);
+    }
+
+    return somPerigo;
 }
 
 export function tocarSomRoque() {

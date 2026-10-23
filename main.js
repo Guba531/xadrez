@@ -50,7 +50,7 @@ import { mostrarXequeMate } from './ui/xequeMate.js';
 import { posicaoParaNotacao } from './core/utils.js';
 import { sincronizarConfiguracoesIniciais } from './ui/nav.js';
 import { animarMovimento } from './animations/animations.js';
-import { tocarSomClique } from './ui/sons.js';
+import { tocarSomClique, tocarSomComer, tocarSomDeslizar, tocarSomPerigo } from './ui/sons.js';
 
 
 // ── ESTADO DO JOGO ────────────────────────────────────────
@@ -188,9 +188,13 @@ function processarClique(row, col) {
     if (ehMovimentoValido.isRisk) {
       // Se modoAlertas for FALSE, ele ignora o IF e move direto
       if (modoAlertas) {
+        const som = tocarSomPerigo();
         const confirmar = confirm("⚠️ Esta casa está sob ataque! Deseja mover mesmo assim?");
+        som.pause();
+        som.currentTime = 0;
         if (!confirmar) return; // Se cancelar, sai da função e não move
       }
+
     }
 
     tocarSomClique();
@@ -228,8 +232,6 @@ function processarClique(row, col) {
 
       if (boardSimulado.estaEmXeque(estado.turnoAtual)) return false;
       if (m.isCastling && m.isRisk) return false;
-
-      
 
       return true;
     }).map(m => ({
@@ -300,6 +302,7 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
     }
     atualizarPlacar(estado.placar);
     atualizarCapturadas(estado.captPorBrancas, estado.captPorPretas);
+    tocarSomComer();
   }
 
   // Registra no histórico
@@ -382,9 +385,9 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
     // Se as animações estiverem desativadas,
     // desenha o tabuleiro normalmente.
     estado.animarMovimento = null;
-     renderizarEstado();
+    renderizarEstado();
   }
-  //tocarSomDeslizar()
+  tocarSomDeslizar();
 }
 
 //Primeiro callback: atualiza a posição visual da peça enquanto ela se move.
@@ -427,6 +430,42 @@ function renderizarEstado() {
     visivelAnterior = null;
     estado.avisoXequePendente = false;
     requestAnimationFrame(animarXeque);
+  }
+}
+
+function animarXeque() {
+  if (!loopAnimacaoAtivo) return;
+
+  renderizar(
+    ctx,
+    estado.board.grid,
+    estado.selecionado,
+    estado.movValidos,
+    true,
+    true
+  );
+
+  const blink = Math.floor(Date.now() / 300) % 2 === 0;
+  desenharAvisoXeque(ctx, blink);
+
+  if (visivelAnterior === true && blink === false) {
+    piscadasRestantes--;
+  }
+  visivelAnterior = blink;
+
+  if (piscadasRestantes > 0) {
+    requestAnimationFrame(animarXeque);
+  } else {
+    loopAnimacaoAtivo = false;
+    estado.bloqueado = false;
+    renderizar(
+      ctx,
+      estado.board.grid,
+      estado.selecionado,
+      estado.movValidos,
+      true,
+      true
+    );
   }
 }
 
