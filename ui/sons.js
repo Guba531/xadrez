@@ -42,12 +42,18 @@ export async function tocarSomPerigo() {
 
     try {
         await somPerigo.play();
-        console.log('Som de perigo iniciado!');
+        return somPerigo;
     } catch (erro) {
         console.error('Não foi possível iniciar o som:', erro);
+        return null;
     }
 
-    return somPerigo;
+    /*
+async function         -> Faz a função retornar uma Promise.
+new Audio(...)         -> Cria o objeto de áudio.
+await somPerigo.play() -> Aguarda a Promise de play() ser resolvida, indicando que a reprodução começou.
+return somPerigo	   -> Entrega o objeto de áudio para quem chamou a função.
+ */
 }
 
 export function tocarSomRoque() {

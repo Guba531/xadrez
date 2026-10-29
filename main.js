@@ -155,7 +155,12 @@ canvas.addEventListener('click', (evento) => {
 //   - Se há peça selecionada e clicou em movimento válido → move
 //   - Se clicou em peça do turno atual → seleciona
 //   - Caso contrário → deseleciona
-function processarClique(row, col) {
+
+async function processarClique(row, col) {
+  // async é uma palavra-chave usada para declarar uma função assíncrona.
+  // Uma função declarada com async sempre retorna uma Promise.
+  // Uma Promise representa o resultado de uma operação que poderá estar 
+  // disponível agora ou no futuro.
 
   if (estado.jogoFinalizado) return;
   const peca = estado.board.grid[row][col];
@@ -188,17 +193,22 @@ function processarClique(row, col) {
     if (ehMovimentoValido.isRisk) {
       // Se modoAlertas for FALSE, ele ignora o IF e move direto
       if (modoAlertas) {
-        const som = tocarSomPerigo();
+        // await significa, aproximadamente, “aguarde o resultado 
+        // desta operação assíncrona antes de continuar nesta função”.
+        // await não congela o navegador inteiro. Ele suspende a
+        //  continuação daquela função assíncrona enquanto a Promise está pendente,
+        //  permitindo que o restante do ambiente JavaScript continue trabalhando.
+        const som = await tocarSomPerigo();
         const confirmar = confirm("⚠️ Esta casa está sob ataque! Deseja mover mesmo assim?");
-        som.pause();
-        som.currentTime = 0;
+        if (som) {
+          som.pause();
+          som.currentTime = 0;
+        }
         if (!confirmar) return; // Se cancelar, sai da função e não move
       }
 
     }
-
     tocarSomClique();
-
     executarMovimento(estado.selecionado.row, estado.selecionado.col, row, col);
     return; // Movimento feito, encerra aqui
   }
