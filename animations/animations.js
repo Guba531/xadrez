@@ -69,7 +69,7 @@ export function animarMovimento(
 
             // Mantém apenas as 24 posições mais recentes.
             // Isso limita o tamanho do rastro e permite que ele desapareça.
-            if (rastro.lenght > 24) {
+            if (rastro.length > 24) {
                 rastro.shift();
             }
         }

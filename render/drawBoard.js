@@ -39,7 +39,7 @@ const COR_CASA_ESCURA = '#6f3d14';
 const COR_SELECIONADO = 'rgba(255, 185, 30,  0.72)'; // amarelo
 const COR_MOVIMENTO = 'rgba(90,  170,  90,  0.45)'; // verde
 const COR_PONTO_CENTRO = 'rgba(0,   0,    0,   0.18)'; // ponto escuro
-const COR_RISK =  'rgba(255, 59, 48, 0.4)';
+const COR_RISK = 'rgba(255, 59, 48, 0.4)';
 const COR_RISK_POINT = 'rgba(150, 0, 0, 0.5)';
 
 
@@ -92,16 +92,16 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMo
   );
 
   // ── Destaque dos movimentos válidos ─────────────────
-// Dentro do drawBoard.js, no loop de movimentosValidos:
+  // Dentro do drawBoard.js, no loop de movimentosValidos:
 
- movimentosValidos.forEach((m) => {
+  movimentosValidos.forEach((m) => {
     const estiloCores = getComputedStyle(document.documentElement);
-    
+
     // Pegamos as cores do CSS
     const corVerdeNormal = estiloCores.getPropertyValue('--highlight-move');
-    const corSuaCaptura  = estiloCores.getPropertyValue('--highlight-capture');
-    const corRisco       = estiloCores.getPropertyValue('--highlight-risk');  // Vermelho
-    const corAlerta      = estiloCores.getPropertyValue('--highlight-alert'); // Laranja
+    const corSuaCaptura = estiloCores.getPropertyValue('--highlight-capture');
+    const corRisco = estiloCores.getPropertyValue('--highlight-risk');  // Vermelho
+    const corAlerta = estiloCores.getPropertyValue('--highlight-alert'); // Laranja
 
     let deveDesenhar = false;
     let corParaPintar = "";
@@ -189,7 +189,7 @@ export function desenharPecas(ctx, grid, pecaAnimada = null) {
 
       ctx.font = `${TAMANHO_CASA * 0.72}px serif`;
       ctx.fillStyle = peca.color === 'white' ? '#ffffff' : '#1a0d00';
-      ctx.fillText(peca.symbol, x, y + 1);
+      ctx.fillText(peca.symbol, 0, 1);
 
       // Contorno leve só para peças brancas — aumenta contraste
       // em casas claras onde o símbolo poderia se perder
@@ -198,7 +198,7 @@ export function desenharPecas(ctx, grid, pecaAnimada = null) {
         ctx.shadowBlur = 0;
         ctx.strokeStyle = 'rgba(52, 36, 7, 0.5)';
         ctx.lineWidth = 0.5;
-        ctx.strokeText(peca.symbol, x, y + 1);
+        ctx.strokeText(peca.symbol, 0, 1);
       }
 
       // Limpa a sombra para não afetar os próximos desenhos
@@ -209,9 +209,53 @@ export function desenharPecas(ctx, grid, pecaAnimada = null) {
 
   if (pecaAnimada) {
 
-    const { peca, row, col } = pecaAnimada;
+    const { peca,
+      row,
+      col,
+      angulo = 0,
+      rastro = [] 
+    } = pecaAnimada;
+
     const x = col * TAMANHO_CASA + TAMANHO_CASA / 2;
     const y = row * TAMANHO_CASA + TAMANHO_CASA / 2;
+
+    // A faixa luminosa é exclusiva da dama.
+    // As outras peças continuam sem esse efeito.
+    if (peca.type === 'queen' && rastro.length > 1) {
+      for (let i = 1; i < rastro.length; i++) {
+        const anterior = rastro[i - 1];
+        const atual = rastro[i];
+
+        const x1 = anterior.col * TAMANHO_CASA + TAMANHO_CASA / 2;
+        const y1 = anterior.row * TAMANHO_CASA + TAMANHO_CASA / 2;
+
+        const x2 = atual.col * TAMANHO_CASA + TAMANHO_CASA / 2;
+        const y2 = atual.row * TAMANHO_CASA + TAMANHO_CASA / 2;
+
+        const intensidade = i / (rastro.length - 1);
+
+        ctx.save();
+
+        ctx.globalAlpha = intensidade * 0.65;
+        ctx.strokeStyle = '#ffd76a';
+        ctx.lineWidth = TAMANHO_CASA * 0.10;
+        ctx.lineCap = 'round';
+
+        ctx.shadowColor = '#ffb52e';
+        ctx.shadowBlur = TAMANHO_CASA * 0.25;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angulo);
 
     ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
     ctx.shadowOffsetY = 2;
@@ -220,20 +264,21 @@ export function desenharPecas(ctx, grid, pecaAnimada = null) {
     ctx.font = `${TAMANHO_CASA * 0.72}px serif`;
     ctx.fillStyle = peca.color === 'white'
       ? '#ffffff'
-      : '#1a0d00'
+      : '#1a0d00';
 
-      ctx.fillText(peca.symbol, x, y + 1);
+    ctx.fillText(peca.symbol, 0, 1);
 
-      if (peca.color === 'white') {
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = 'rgba(52, 36, 7, 0.5)';
-        ctx.lineWidth = 0.5;
-        ctx.strokeText(peca.symbol, x, y + 1);
-      }
-
+    if (peca.color === 'white') {
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(52, 36, 7, 0.5)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeText(peca.symbol, 0, 1);
+    }
+
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.restore();
   }
 }
 

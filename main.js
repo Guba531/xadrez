@@ -372,14 +372,16 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
       deCol,
       paraRow,
       paraCol,
-      (peca, row, col) => {
+      (peca, row, col, angulo, rastro) => {
 
         estado.animarMovimento = {
           peca,
           row,
           col,
           paraRow,
-          paraCol
+          paraCol,
+          angulo,
+          rastro
         };
 
         renderizarEstado();
