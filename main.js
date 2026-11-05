@@ -50,7 +50,7 @@ import { mostrarXequeMate } from './ui/xequeMate.js';
 import { posicaoParaNotacao } from './core/utils.js';
 import { sincronizarConfiguracoesIniciais } from './ui/nav.js';
 import { animarMovimento } from './animations/animations.js';
-import { tocarSomClique, tocarSomComer, tocarSomDeslizar, tocarSomPerigo } from './ui/sons.js';
+import { tocarSomClique, tocarSomComer, tocarSomDeslizar, tocarSomPerigo, tocarSomRoque } from './ui/sons.js';
 
 
 // ── ESTADO DO JOGO ────────────────────────────────────────
@@ -118,7 +118,7 @@ window.startGame = function () {
   sincronizarConfiguracoesIniciais(estado.config);
 
   // Desenha o tabuleiro inicial
-  renderizar(ctx, estado.board.grid, null, []);
+  renderizar(ctx, estado.board.grid, null, [], estado.config.moves, estado.config.risco);
 
   setStatus('Brancas começam — selecione uma peça');
 };
@@ -294,6 +294,7 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
     estado.board.grid[deRow][rookToCol] = torre;
     estado.board.grid[deRow][rookFromCol] = null;
     if (torre) torre.moveu = true;
+    tocarSomRoque();
   }
 
   const pecaMovida = estado.board.grid[deRow][deCol];
@@ -342,7 +343,7 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
       estado.jogoFinalizado = false;
     } else {
       const vencedor = proximoTurno === 'white' ? 'Pretas' : 'Brancas';
-      setStatus(`XEQUE-MATE! Vitoria das ${estado.turnoAtual === 'white' ? 'Brancas' : 'Pretas'}`, 'alerta');
+      setStatus(`XEQUE-MATE! Vitoria das ${vencedor}!`, 'alerta');
       estado.jogoFinalizado = true; // Bloquear o jogo aqui
       mostrarXequeMate();
     }
@@ -537,7 +538,7 @@ function explicarBloqueioRoque(reiRow, reiCol, destinoCol) {
   const cor = rei.color;
   const ehRoquePequeno = (destinoCol === 6); //Coluna 6
   const torreCol = ehRoquePequeno ? 7 : 0;
-  const torre = estado.board.grid = [reiRow][reiCol];
+  const torre = estado.board.grid [reiRow][torreCol];
 
   // 1. Verificar se o Rei moveu
   if (rei.moveu) return "O Roque não e permitido porque o Rei ja se moveu nesta partida";

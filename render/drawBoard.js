@@ -189,7 +189,7 @@ export function desenharPecas(ctx, grid, pecaAnimada = null) {
 
       ctx.font = `${TAMANHO_CASA * 0.72}px serif`;
       ctx.fillStyle = peca.color === 'white' ? '#ffffff' : '#1a0d00';
-      ctx.fillText(peca.symbol, 0, 1);
+      ctx.fillText(peca.symbol, x, y + 1);
 
       // Contorno leve só para peças brancas — aumenta contraste
       // em casas claras onde o símbolo poderia se perder
@@ -198,7 +198,7 @@ export function desenharPecas(ctx, grid, pecaAnimada = null) {
         ctx.shadowBlur = 0;
         ctx.strokeStyle = 'rgba(52, 36, 7, 0.5)';
         ctx.lineWidth = 0.5;
-        ctx.strokeText(peca.symbol, 0, 1);
+        ctx.strokeText(peca.symbol, x, y + 1);
       }
 
       // Limpa a sombra para não afetar os próximos desenhos

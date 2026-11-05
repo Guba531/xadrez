@@ -1,3 +1,27 @@
+/* ─────────────────────────────────────────────
+   MOTOR GERAL DE ANIMAÇÃO
+   Controla tempo, deslocamento e atualização.
+   Os efeitos específicos ficam em pieceAnimations.js.
+   ───────────────────────────────────────────── */
+
+import {
+    animarDama,
+    //animarTorre,
+    //animarBispo,
+    //animarCavalo,
+    //animarPeao,
+    //animarRei
+} from './pieceAnimations.js';
+
+const estrategias = {
+    queen: animarDama,
+    //rook: animarTorre,
+    //bishop: animarBispo,
+    //knight: animarCavalo,
+    //pawn: animarPeao,
+    //king: animarRei
+};
+
 export function animarMovimento(
     peca,
     deRow,
@@ -16,6 +40,7 @@ export function animarMovimento(
     // Guarda as últimas posições da dama para desenhar seu rastro.
     // A lista existe apenas durante esta animação.
     const rastro = [];
+    const estrategia = estrategias[peca.type];
 
     // Calcula a direção do movimento no tabuleiro.
     const deltaRow = paraRow - deRow;
@@ -31,51 +56,29 @@ export function animarMovimento(
         const progresso = Math.min((agora - inicio) / duracao, 1);
 
         // Calcula a posicao intermediaria da peca
-        let row = deRow + deltaRow * progresso;
-        let col = deCol + deltaCol * progresso;
+        const row = deRow + deltaRow * progresso;
+        const col = deCol + deltaCol * progresso;
 
-        let angulo = 0;
+        const contexto = {
+            row,
+            col,
+            deltaRow,
+            deltaCol,
+            distancia,
+            rastro
+        };
 
-        if (peca.type === 'queen' && distancia > 0) {
-            // Três oscilações completas formam os "S" emendados.
-            const fase = progresso * Math.PI * 4; // o valor determina o tamanho da onda
+        const resultado = estrategia
+            ? estrategia(progresso, contexto)
+            : { row, col, angulo: 0, rastro: [] };
 
-
-            // A oscilação desaparece no começo e no final.
-            // Assim, a dama começa e termina exatamente na casa correta.
-            const envelope = Math.sin(progresso * Math.PI);
-
-            // Intensidade do desvio lateral, medida em casas.
-            // 0.22 significa uma oscilação de até 22% de uma casa,
-            // antes de considerar a intensidade do envelope.
-            const amplitude = 0.07;
-
-            // Desvio perpendicular à direção do movimento.
-            // Isso faz a dama serpentear mesmo em movimentos diagonais.
-            const desvio = Math.sin(fase) * amplitude * envelope;
-
-            row += (-deltaCol / distancia) * desvio;
-            col += (deltaRow / distancia) * desvio;
-
-            // Inclinação discreta para acompanhar a dança.
-            // Não usamos o ângulo para produzir a trajetória:
-            // ela é criada pelo desvio de row e col acima.
-            angulo = Math.cos(fase) * 0.025 * envelope;
-        }
-
-        // Só a dama deixa uma faixa de energia.
-        if (peca.type === 'queen') {
-            rastro.push({ row, col });
-
-            // Mantém apenas as 24 posições mais recentes.
-            // Isso limita o tamanho do rastro e permite que ele desapareça.
-            if (rastro.length > 24) {
-                rastro.shift();
-            }
-        }
-
-        // Pede para o sistema desenhar essa posicao
-        desenhar(peca, row, col, angulo, peca.type == 'queen' ? rastro : []);
+        desenhar(
+            peca,
+            resultado.row,
+            resultado.col,
+            resultado.angulo ?? 0,
+            resultado.rastro
+        );
 
         // Ainda nao terminou?
         if (progresso < 1) {
