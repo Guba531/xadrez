@@ -6,18 +6,18 @@
 
 import {
     animarDama,
-    //animarTorre,
+    animarTorre,
     //animarBispo,
-    //animarCavalo,
+    animarCavalo,
     //animarPeao,
     //animarRei
 } from './pieceAnimations.js';
 
 const estrategias = {
     queen: animarDama,
-    //rook: animarTorre,
+    rook: animarTorre,
     //bishop: animarBispo,
-    //knight: animarCavalo,
+    knight: animarCavalo,
     //pawn: animarPeao,
     //king: animarRei
 };
