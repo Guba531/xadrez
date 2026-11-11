@@ -7,19 +7,19 @@
 import {
     animarDama,
     animarTorre,
-    //animarBispo,
+    animarBispo,
     animarCavalo,
-    //animarPeao,
-    //animarRei
+    animarPeao,
+    animarRei
 } from './pieceAnimations.js';
 
 const estrategias = {
     queen: animarDama,
     rook: animarTorre,
-    //bishop: animarBispo,
+    bishop: animarBispo,
     knight: animarCavalo,
-    //pawn: animarPeao,
-    //king: animarRei
+    pawn: animarPeao,
+    king: animarRei
 };
 
 export function animarMovimento(
@@ -62,6 +62,10 @@ export function animarMovimento(
         const contexto = {
             row,
             col,
+            deRow,
+            deCol,
+            paraRow,
+            paraCol,
             deltaRow,
             deltaCol,
             distancia,

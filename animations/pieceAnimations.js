@@ -113,3 +113,61 @@ export function animarCavalo(progresso, contexto) {
 
     return { row: novaRow, col: novaCol, angulo, rastro: [] };
 }
+
+export function animarBispo(progresso, contexto) {
+
+    const {
+        deRow,
+        deCol,
+        deltaRow,
+        deltaCol
+    } = contexto;
+
+    const suave = progresso * progresso * (3 - 2 * progresso);
+
+    let novaRow = deRow + deltaRow * suave;
+    let novaCol = deCol + deltaCol * suave;
+
+    // Curva
+    const distancia = Math.hypot(deltaRow * suave);
+    const curva = Math.sin(progresso * Math.PI) * 0.32;
+
+    if (distancia > 0) {
+        novaRow += (-deltaCol / distancia) * curva;
+        novaCol += (deltaRow / distancia) * curva;
+    }
+
+    const angulo = Math.sin(progresso * Math.PI) * 0.30;
+
+    return {
+        row: novaRow,
+        col: novaCol,
+        angulo,
+        rastro: []
+    };
+}
+
+export function animarPeao(progresso, contexto) {
+    const { row, col } = contexto;
+
+    const frequenciaPasso = progresso * Math.PI * 6;
+    const elevacaoPasso = Math.abs(Math.sin(frequenciaPasso)) * 0.12;
+
+    const novaRow = row - elevacaoPasso
+    const angulo = Math.sin(frequenciaPasso) * 0.05;
+
+    return { row: novaRow, col, angulo, rastro: [] };
+}
+
+export function animarRei(progresso, contexto) {
+    const { deRow, deCol, deltaRow, deltaCol } = contexto;
+
+    const progressoReal = 1 - Math.pow(1 - progresso, 2);
+
+    const novaRow = deRow + deltaRow * progressoReal;
+    const novaCol = deCol + deltaCol * progressoReal;
+
+    const angulo = Math.sin(progresso * Math.PI) * 0.50;
+
+    return { row: novaRow, col: novaCol, angulo, rastro: [] };
+}
