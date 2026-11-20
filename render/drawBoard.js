@@ -25,6 +25,8 @@
 //   ctx.save/restore() → salva e restaura o estado do ctx
 // ═══════════════════════════════════════════════════════
 
+import { desenharEfeitosCamadaFundo } from "../animations/animationEffect.js";
+
 
 // Tamanho de cada casa em pixels
 // Constante no topo: se quisermos mudar o tamanho do
@@ -215,6 +217,9 @@ export function desenharPecas(ctx, grid, pecaAnimada = null) {
       angulo = 0,
       rastro = [] 
     } = pecaAnimada;
+
+    //  CAMADA 1: Efeitos de Fundo (rastros no chão, sombras 2.5D, ondas de choque)
+    desenharEfeitosCamadaFundo(ctx, pecaAnimada, TAMANHO_CASA);
 
     const x = col * TAMANHO_CASA + TAMANHO_CASA / 2;
     const y = row * TAMANHO_CASA + TAMANHO_CASA / 2;

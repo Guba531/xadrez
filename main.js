@@ -373,16 +373,23 @@ function executarMovimento(deRow, deCol, paraRow, paraCol) {
       deCol,
       paraRow,
       paraCol,
-      (peca, row, col, angulo, rastro) => {
 
+      // Atualiza a posição visual da peça a cada quadro.
+      // 1. Callback executado durante a animação.
+      // Agora recebemos também o rastro da dama.
+      (peca, row, col, angulo, rastro, progresso, extras) => {
         estado.animarMovimento = {
           peca,
           row,
           col,
+          deRow,
+          deCol,
           paraRow,
           paraCol,
           angulo,
-          rastro
+          rastro,
+          progresso,
+          extras
         };
 
         renderizarEstado();

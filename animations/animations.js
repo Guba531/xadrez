@@ -81,7 +81,9 @@ export function animarMovimento(
             resultado.row,
             resultado.col,
             resultado.angulo ?? 0,
-            resultado.rastro
+            resultado.rastro ?? [],
+            progresso,
+            resultado.extras ?? {}
         );
 
         // Ainda nao terminou?

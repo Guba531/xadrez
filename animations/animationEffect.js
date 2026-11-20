@@ -17,38 +17,48 @@
 // ── 👑 DAMA: RASTRO DOURADO CÓSMICO ──────────────────────────
 // [NOVO] Desenha uma fita fluida luminosa com cauda cônica e blur
 
-function desenharDouradoLegal() {
-    if (!rastro || rastro.length < 2) return;
-    for (let i = 1; i < rastro.length; i++) {
-        const anterior = rastro[i - 1];
-        const atual = rastro[i];
+export function desenharDouradoLegal(ctx, rastro, TAMANHO_CASA) {
+   if (!rastro || rastro.length < 2) return; //COntinuar daqui
+   for (let i = 1; i < rastro.length; i++) {
+      const anterior = rastro[i - 1];
+      const atual = rastro[i];
 
-        const x1 = anterior.col * TAMANHO_CASA + TAMANHO_CASA / 2;
-        const y1 = anterior.row * TAMANHO_CASA + TAMANHO_CASA / 2;
+      const x1 = anterior.col * TAMANHO_CASA + TAMANHO_CASA / 2;
+      const y1 = anterior.row * TAMANHO_CASA + TAMANHO_CASA / 2;
 
-        const x2 = atual.col * TAMANHO_CASA + TAMANHO_CASA / 2;
-        const y2 = atual.row * TAMANHO_CASA + TAMANHO_CASA / 2;
+      const x2 = atual.col * TAMANHO_CASA + TAMANHO_CASA / 2;
+      const y2 = atual.row * TAMANHO_CASA + TAMANHO_CASA / 2;
 
-        const intensidade = i / (rastro.length - 1);
+      const intensidade = i / (rastro.length - 1);
 
-        ctx.save();
+      ctx.save();
 
-        ctx.globalAlpha = intensidade * 0.65;
-        ctx.strokeStyle = '#ffd76a';
-        ctx.lineWidth = TAMANHO_CASA * 0.10;
-        ctx.lineCap = 'round';
+      ctx.globalAlpha = intensidade * 0.65;
+      ctx.strokeStyle = '#ffd76a';
+      ctx.lineWidth = TAMANHO_CASA * (0.04 + intensidade * 0.12);
+      ctx.lineCap = 'round';
 
-        ctx.shadowColor = '#ffb52e';
-        ctx.shadowBlur = TAMANHO_CASA * 0.25;
+      ctx.shadowColor = '#ffb52e';
+      ctx.shadowBlur = TAMANHO_CASA * 0.25 * intensidade;
 
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
 
-        ctx.restore();
-    }
+      ctx.restore();
+   }
 }
-if (peca.type === 'queen' && rastro.length > 1) {
-    
+
+// ─────────────────────────────────────────────────────────────
+// [NOVO] DISPATCHERS CENTRAIS
+// Chamados pelo drawBoard.js antes e depois de desenhar a peça.
+// ─
+export function desenharEfeitosCamadaFundo(ctx, animacao, TAMANHO_CASA) {
+   const { peca, paraRow, paraCol, rastro, progresso, extras } = animacao;
+   switch (peca.type) {
+      case "dama":
+         desenharDouradoLegal(ctx, rastro, TAMANHO_CASA);
+      break;
+   }
 }
